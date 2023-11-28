@@ -147,6 +147,7 @@ p3
 p <- p1 + p2 + p3 + patchwork::plot_layout(guides = "collect")
 p
 ggsave(filename = "MarkersandPlots/HB16hpf_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
+saveRDS(p, file = "MarkersandPlots/HB16_volcanoPlots.RDS")
 ```
 
 

@@ -2370,7 +2370,7 @@ p
 ![](VolcanoPlots_HB13hpf_files/figure-gfm/combinedPlot-1.png)<!-- -->
 
 ``` r
-ggsave(filename = "Plots/SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
+ggsave(filename = "Plots/HB13_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
 saveRDS(p, file = "Plots/HB13_volcanoPlots.RDS")
 ```
 

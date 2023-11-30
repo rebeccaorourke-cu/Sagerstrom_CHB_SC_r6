@@ -1,9 +1,9 @@
 ---
 title: "R Figure 4"
 output:
-  github_document: default
   html_document:
     df_print: paged
+  github_document: default
 ---
 
 # 1 libraries

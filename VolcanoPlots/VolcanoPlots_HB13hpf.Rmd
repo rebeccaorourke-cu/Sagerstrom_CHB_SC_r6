@@ -131,7 +131,7 @@ p3
 ```{r combinedPlot, fig.width=25, fig.height=7}
 p <- p1 + p2 + p3 + patchwork::plot_layout(guides = "collect")
 p
-ggsave(filename = "Plots/SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
+ggsave(filename = "Plots/HB13_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
 saveRDS(p, file = "Plots/HB13_volcanoPlots.RDS")
 ```
 

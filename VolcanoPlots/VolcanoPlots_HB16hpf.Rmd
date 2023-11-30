@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "R HB16 Volcano plots"
 output:
   html_document:
     df_print: paged
@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 ```
 
 ```{r read_HB16}
-seurat <- readRDS(file = "~/Documents/Projects/Sagerstrom/Sagerstrom_zebrafish_hindbrain/workspace/notebooks/RDSfiles/HB16hpf_neural.RDS")
+seurat <- readRDS(file = "../data/HB16hpf_neural.RDS")
 DefaultAssay(seurat) <- "SCT"
 Idents(seurat) <- "Clusters"
 ```
@@ -146,8 +146,8 @@ p3
 ```{r volcano4, fig.width=25, fig.height=7}
 p <- p1 + p2 + p3 + patchwork::plot_layout(guides = "collect")
 p
-ggsave(filename = "MarkersandPlots/HB16hpf_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
-saveRDS(p, file = "MarkersandPlots/HB16_volcanoPlots.RDS")
+ggsave(filename = "Plots/HB16hpf_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
+saveRDS(p, file = "Plots/HB16_volcanoPlots.RDS")
 ```
 
 

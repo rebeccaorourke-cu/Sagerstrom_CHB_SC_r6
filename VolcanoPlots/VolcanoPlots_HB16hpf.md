@@ -1,4 +1,4 @@
-R Notebook
+R HB16 Volcano plots
 ================
 
 ``` r
@@ -11,7 +11,7 @@ suppressPackageStartupMessages({
 ```
 
 ``` r
-seurat <- readRDS(file = "~/Documents/Projects/Sagerstrom/Sagerstrom_zebrafish_hindbrain/workspace/notebooks/RDSfiles/HB16hpf_neural.RDS")
+seurat <- readRDS(file = "../data/HB16hpf_neural.RDS")
 DefaultAssay(seurat) <- "SCT"
 Idents(seurat) <- "Clusters"
 ```
@@ -2108,8 +2108,8 @@ p
 ![](VolcanoPlots_HB16hpf_files/figure-gfm/volcano4-1.png)<!-- -->
 
 ``` r
-ggsave(filename = "MarkersandPlots/HB16hpf_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
-saveRDS(p, file = "MarkersandPlots/HB16_volcanoPlots.RDS")
+ggsave(filename = "Plots/HB16hpf_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
+saveRDS(p, file = "Plots/HB16_volcanoPlots.RDS")
 ```
 
 ``` r

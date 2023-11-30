@@ -1,0 +1,141 @@
+---
+title: "R HB13 Volcano plots"
+output:
+  html_document:
+    df_print: paged
+  github_document: default
+---
+
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(Signac)
+  library(EnhancedVolcano)
+  library(ggsci)
+})
+```
+
+```{r readdata}
+seurat <- readRDS(file = "../data/HB13hpf_neural.RDS")
+DefaultAssay(seurat) <- "SCT"
+Idents(seurat) <- "Clusters"
+DimPlot(seurat, reduction = "wnn.umap") + scale_color_igv()
+```
+```{r rename}
+seurat <- RenameIdents(seurat,
+                       "CHB.1" = "CHB",
+                       "CHB.2" = "CHB",
+                       "CHB.3" = "CHB",
+                       "SC.1" = "SC",
+                       "SC.2" = "SC",
+                       "SC.3" = "SC")
+DimPlot(seurat) + scale_color_igv()
+```
+
+
+```{r SCvsr6}
+markers.SCvsr6 <- FindMarkers(seurat, ident.1 = "SC", ident.2 = "r6", verbose = F, recorrect_umi = F)
+markers.SCvsr6
+```
+
+```{r SCvsCHB}
+markers.SCvsCHB <- FindMarkers(seurat, ident.1 = "SC", ident.2 = "CHB", verbose = F, recorrect_umi = F)
+markers.SCvsCHB
+```
+
+```{r r6vsCHB}
+markers.r6vsCHB <- FindMarkers(seurat, ident.1 = "r6", ident.2 = "CHB", verbose = F, recorrect_umi = F)
+markers.r6vsCHB
+```
+
+```{r SCvsr6plot, fig.width=7, fig.height=5}
+keyvals <- ifelse(
+   markers.SCvsr6$avg_log2FC < -0.5 & markers.SCvsr6$p_val_adj < 0.05, 'blue3',
+   ifelse(markers.SCvsr6$avg_log2FC > 0.5 & markers.SCvsr6$p_val_adj < 0.05, 'orange2',
+   'grey50'))
+keyvals[is.na(keyvals)]<-'grey50'
+names(keyvals)[keyvals == 'blue3'] <- 'Up-regulated r6'
+names(keyvals)[keyvals == 'orange2'] <- 'Up-regulated SC'
+names(keyvals)[keyvals == 'grey50'] <- 'Not significant'
+
+p1 <- EnhancedVolcano(markers.SCvsr6 , 
+                rownames(markers.SCvsr6 ),
+                x ="avg_log2FC", 
+                y ="p_val_adj",
+                pCutoff = 0.05,
+                FCcutoff = 0.5,
+                title = "Volcano plot SC vs r6",
+                legendPosition = "right",
+                lab = NA,
+                subtitle = NULL,
+                gridlines.minor = FALSE, gridlines.major = FALSE,
+                #selectLab = rownames(markers.SCvsr6[which(names(keyvals) %in% c('Down-regulated','Up-regulated'))]),
+                colCustom = keyvals)
+p1
+```
+
+
+```{r SCvsCHBplot, fig.width=7, fig.height=5}
+keyvals <- ifelse(
+   markers.SCvsCHB$avg_log2FC < -0.5 & markers.SCvsCHB$p_val_adj < 0.05, 'green3',
+   ifelse(markers.SCvsCHB$avg_log2FC > 0.5 & markers.SCvsCHB$p_val_adj < 0.05, 'orange2',
+   'grey50'))
+keyvals[is.na(keyvals)]<-'grey50'
+names(keyvals)[keyvals == 'orange2'] <- 'Up-regulated SC'
+names(keyvals)[keyvals == 'green3'] <- 'Up-regulated CHB'
+names(keyvals)[keyvals == 'grey50'] <- 'Not significant'
+
+p2 <- EnhancedVolcano(markers.SCvsCHB , 
+                rownames(markers.SCvsCHB ),
+                x ="avg_log2FC", 
+                y ="p_val_adj",
+                pCutoff = 0.05,
+                FCcutoff = 0.5,
+                title = "Volcano plot SC vs CHB",
+                legendPosition = "right",
+                lab = NA,
+                subtitle = NULL,
+                gridlines.minor = FALSE, gridlines.major = FALSE,
+                #selectLab = rownames(markers.SCvsr6[which(names(keyvals) %in% c('Down-regulated','Up-regulated'))]),
+                colCustom = keyvals)
+p2
+```
+
+```{r r6vsCHBplot, fig.width=7, fig.height=5}
+keyvals <- ifelse(
+   markers.r6vsCHB$avg_log2FC < -0.5 & markers.r6vsCHB$p_val_adj < 0.05, 'green3',
+   ifelse(markers.r6vsCHB$avg_log2FC > 0.5 & markers.r6vsCHB$p_val_adj < 0.05, 'blue3',
+   'grey50'))
+keyvals[is.na(keyvals)]<-'grey50'
+names(keyvals)[keyvals == 'blue3'] <- 'Up-regulated r6'
+names(keyvals)[keyvals == 'green3'] <- 'Up-regulated CHB'
+names(keyvals)[keyvals == 'grey50'] <- 'Not significant'
+
+p3 <- EnhancedVolcano(markers.r6vsCHB , 
+                rownames(markers.r6vsCHB ),
+                x ="avg_log2FC", 
+                y ="p_val_adj",
+                pCutoff = 0.05,
+                FCcutoff = 0.5,
+                title = "Volcano plot r6 vs CHB",
+                legendPosition = "right",
+                lab = NA,
+                subtitle = NULL,
+                gridlines.minor = FALSE, gridlines.major = FALSE,
+                #selectLab = rownames(markers.SCvsr6[which(names(keyvals) %in% c('Down-regulated','Up-regulated'))]),
+                colCustom = keyvals)
+p3
+```
+
+```{r combinedPlot, fig.width=25, fig.height=7}
+p <- p1 + p2 + p3 + patchwork::plot_layout(guides = "collect")
+p
+ggsave(filename = "Plots/SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
+saveRDS(p, file = "Plots/HB13_volcanoPlots.RDS")
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
+

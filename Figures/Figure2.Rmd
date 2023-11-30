@@ -1,0 +1,229 @@
+---
+title: "R Figure 2"
+output:
+  html_document:
+    df_print: paged
+  github_document: default
+---
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(Signac)
+  library(BSgenome.Drerio.UCSC.danRer11)
+  library(EnhancedVolcano)
+  library(ggsci)
+  library(patchwork)
+})
+```
+
+# Read data
+```{r read_HB13}
+HB13 <- readRDS(file = "../data/HB13hpf_neural.RDS")
+DefaultAssay(HB13) <- "SCT"
+Idents(HB13) <- "Clusters"
+```
+
+```{r read_HB16}
+HB16 <- readRDS(file = "../data/HB16hpf_neural.RDS")
+DefaultAssay(HB16) <- "SCT"
+Idents(HB16) <- "Clusters"
+```
+
+```{r read_int}
+HB.int <- readRDS(file = "../data/int.neural.3WT.subset.RDS")
+DefaultAssay(HB.int) <- "SCT"
+Idents(HB.int) <- "intClusters"
+```
+
+# Cluster names
+
+## HB13hpf
+
+Named clusters after clustering at resolution 8, needed to resolve all rhombomeres into separate clusters.
+```{r umap_HB13}
+DimPlot(HB13, reduction = "wnn.umap") + scale_color_igv()
+```
+Combining multiple clusters of same cell type.
+```{r rename_HB13}
+Idents(HB13) <- "Clusters"
+HB13 <- RenameIdents(HB13,
+                       "r5.1" = "r5",
+                       "r5.2" = "r5",
+                       "MB.1" = "MB",
+                       "MB.2" = "MB",
+                       "MB.3" = "MB",
+                       "MHB.1" = "MHB",
+                       "MHB.2" = "MHB",
+                       "MHB.3" = "MHB",
+                       "MHB.4" = "MHB",
+                       "MHB.5" = "MHB",
+                       "FB.1" = "FB",
+                       "FB.2" = "FB",
+                       "FB.3" = "FB",
+                       "FB.4" = "FB")
+levels(HB13) <- c("FB","MB","MHB","r1","r1 & r2","r2","r3","r4","r5","r6",
+                    "low_expression","unknown","Neuron","Ciliated","CHB.1","CHB.2","CHB.3","SC.1","SC.2","SC.3")
+umap.HB13 <- DimPlot(HB13, reduction = "wnn.umap") + scale_color_igv() + 
+  guides(color = guide_legend(override.aes = list(size=4), ncol=2) )
+umap.HB13
+```
+
+## HB16hpf
+Named clusters after clustering at resolution 6, needed to resolve all rhombomeres into separate clusters.
+```{r umap_HB16}
+DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv()
+```
+Combining multiple clusters of same cell type.
+```{r rename_HB16}
+Idents(HB16) <- "Clusters"
+HB16 <- RenameIdents(HB16,
+                       "r5.1" = "r5",
+                       "r5.2" = "r5",
+                       "MB.1" = "MB",
+                       "MB.2" = "MB",
+                       "MHB.1" = "MHB",
+                       "MHB.2" = "MHB",
+                       "MHB.3" = "MHB")
+levels(HB16) <- c("FB","MB","MHB","r1","r2","r3","r4","r5","r6",
+                    "DorsNT & NC","Neuron","Ciliated","CHB.1","CHB.2","CHB.3","CHB.4","SC.1","SC.2","SC.3")
+umap.HB16 <- DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv() + 
+  guides(color = guide_legend(override.aes = list(size=4), ncol=2) )
+umap.HB16
+```
+## HB integrated
+```{r rename_HBint}
+Idents(HB.int) <- "intClusters"
+HB.int <- RenameIdents(HB.int,
+                       "r1&r2.1" = "r1 & r2",
+                       "r1&r2.2" = "r1 & r2",
+                       "r3.1" = "r3",
+                       "r4.1" = "r4",
+                       "r4.2" = "r4",
+                       "r5.1" = "r5",
+                       "r5.2" = "r5",
+                       "r6.1" = "r6",
+                       "r6.2" = "r6",
+                       "MB.1" = "MB",
+                       "MB.2" = "MB",
+                       "MB.3" = "MB",
+                       "MHB.1" = "MHB",
+                       "MHB.2" = "MHB",
+                       "MHB.3" = "MHB",
+                       "MHB.4" = "MHB",
+                       "MHB.5" = "MHB",
+                       "MHB.6" = "MHB",
+                       "Neuron.1" = "Neuron",
+                       "Neuron.2" = "Neuron",
+                       "CaudHB.1" = "CHB.1",
+                       "CaudHB.2" = "CHB.2",
+                       "CaudHB.3" = "CHB.3",
+                       "CaudHB.4" = "CHB.4")
+levels(HB.int) <- c("MB","MHB","r1 & r2","r1","r2","r3","r4","r5","r6",           
+                  "CHB.1","CHB.2","CHB.3","CHB.4","SC.1","SC.2","SC.3","SC.4",
+                  "Neuron","Ciliated","Neurog","NC.1","NC.2","HB","Mitochondrial")
+umap.HBint <- DimPlot(HB.int, reduction = "wnn.umap") + scale_color_igv() + 
+  guides(color = guide_legend(override.aes = list(size=4), ncol=2) )
+umap.HBint
+```
+
+# Gene expression and chromvar activity plots
+
+## HB13hpf
+
+```{r HB13_feature}
+HB13.casz1 <- FeaturePlot(HB13, features = "casz1", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.zic2b <- FeaturePlot(HB13, features = "zic2b", reduction = "wnn.umap", max.cutoff = 1.3)
+HB13.ntn1a <- FeaturePlot(HB13, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.sp8a <- FeaturePlot(HB13, features = "sp8a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.lbx1b <- FeaturePlot(HB13, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+```
+
+```{r HB13_exp, fig.width=10, fig.height=4}
+HB13.plots <- umap.HB13 + HB13.casz1 + HB13.zic2b + HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
+  plot_layout(ncol = 3)
+HB13.plots
+```
+
+## HB16hpf
+
+```{r HB16_feature}
+HB16.zic2b <- FeaturePlot(HB16, features = "zic2b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB16.ntn1a <- FeaturePlot(HB16, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3)
+HB16.lbx1b <- FeaturePlot(HB16, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB16.dbx1b <- FeaturePlot(HB16, features = "dbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+```
+
+```{r HB16_exp, fig.width=7, fig.height=4}
+HB16.plots <- umap.HB16 + HB16.zic2b + HB16.ntn1a + HB16.lbx1b + HB16.dbx1b + 
+  plot_layout(ncol = 3)
+HB16.plots
+```
+
+## HB integrated
+
+```{r HBint_feature}
+HBint.zic2b <- FeaturePlot(HB.int, features = "zic2b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HBint.lbx1b <- FeaturePlot(HB.int, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3)
+HBint.dbx1b <- FeaturePlot(HB.int, features = "dbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HBint.ntn1a <- FeaturePlot(HB.int, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+```
+
+```{r HBint_exp, fig.width=7, fig.height=4}
+HBint.plots <- umap.HBint + HBint.zic2b + HBint.lbx1b + HBint.dbx1b + HBint.ntn1a + 
+  plot_layout(ncol = 3)
+HB16.plots
+```
+
+# Figure 2 combined plots
+
+```{r combined, fig.width=15, fig.height=20}
+layout <- "
+ABC
+DEF
+GHI
+#JK
+LMN
+#OP"
+
+combined <- umap.HB13 + HB13.casz1 + HB13.zic2b + 
+  HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
+  umap.HB16 + HB16.zic2b + HB16.ntn1a +
+  HB16.lbx1b + HB16.dbx1b + 
+  umap.HBint + HBint.zic2b + HBint.lbx1b +
+  HBint.dbx1b + HBint.ntn1a +
+  plot_layout(design = layout)
+combined
+ggsave(filename = "Plots/Figure2.png", width = 15, height = 20, plot = combined)
+```
+
+```{r combined2, fig.width=15, fig.height=20}
+umap.HB13 <- umap.HB13 +
+  guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
+umap.HB16 <- umap.HB16 +
+  guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
+umap.HBint <-  umap.HBint +
+  guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
+layout <- "
+AABC#
+AADEF
+GGHI#
+GGJK#
+LLMN#
+LLOP#"
+
+combined2 <- umap.HB13 + HB13.casz1 + HB13.zic2b + 
+  HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
+  umap.HB16 + HB16.zic2b + HB16.ntn1a +
+  HB16.lbx1b + HB16.dbx1b + 
+  umap.HBint + HBint.zic2b + HBint.lbx1b +
+  HBint.dbx1b + HBint.ntn1a +
+  plot_layout(design = layout)
+combined2
+ggsave(filename = "Plots/Figure2_vs2.png", width = 15, height = 20, plot = combined2)
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
+

@@ -1,0 +1,69 @@
+---
+title: "R Figure 3"
+output:
+  html_document:
+    df_print: paged
+  github_document: default
+---
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(Signac)
+  library(BSgenome.Drerio.UCSC.danRer11)
+  library(EnhancedVolcano)
+  library(ggsci)
+  library(patchwork)
+})
+```
+
+# Read data
+```{r read_HB13}
+HB13 <- readRDS(file = "../data/HB13hpf_neural.RDS")
+DefaultAssay(HB13) <- "SCT"
+Idents(HB13) <- "Clusters"
+```
+
+```{r read_HB16}
+HB16 <- readRDS(file = "../data/HB16hpf_neural.RDS")
+DefaultAssay(HB16) <- "SCT"
+Idents(HB16) <- "Clusters"
+```
+
+# Cluster names
+
+## HB13hpf
+
+Named clusters after clustering at resolution 8, needed to resolve all rhombomeres into separate clusters.
+```{r umap_HB13}
+DimPlot(HB13, reduction = "wnn.umap") + scale_color_igv()
+```
+
+## HB16hpf
+Named clusters after clustering at resolution 6, needed to resolve all rhombomeres into separate clusters.
+```{r umap_HB16}
+DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv()
+```
+
+# Gene expression plots
+selected cutoff of 0.65 as the maximum expression value common to all genes
+```{r combined, fig.width=15, fig.height=15}
+plotlist <- list()
+genelist <- c("hoxb7a","hoxb6a","hoxa5a","hoxb5a","hoxc5a","hoxa4a","hoxb4a","hoxc4a","hoxd4a")
+for(gene in genelist){
+  if(gene %in% rownames(HB13)){
+    plotlist[[paste0("HB13_",gene)]] <- FeaturePlot(HB13, features = gene, reduction = "wnn.umap", max.cutoff = 0.65)
+  }
+  if(gene %in% rownames(HB16)){
+    plotlist[[paste0("HB16_",gene)]] <- FeaturePlot(HB16, features = gene, reduction = "wnn.umap", max.cutoff = 0.65)
+  }
+}
+combined <- wrap_plots(plotlist, ncol = 4, guides = 'collect')
+combined
+ggsave(filename = "Plots/Figure3.png", height = 15, width = 15, plot = combined)
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
+

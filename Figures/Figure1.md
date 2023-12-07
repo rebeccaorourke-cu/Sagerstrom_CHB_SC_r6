@@ -117,7 +117,7 @@ umap.HB16
 expression and chromvar activity plots
 
 ``` r
-GetChromVarPlots <- function(object, motifs, reduction){
+GetChromVarPlots <- function(object, motifs, reduction, max.cutoff){
   DefaultAssay(object) <- "chromvar"
   mylist <- list()
   for(motif in 1:length(motifs)){
@@ -126,7 +126,7 @@ GetChromVarPlots <- function(object, motifs, reduction){
       reduction = reduction,
       features = motifs[[motif]],
       min.cutoff = 'q10',
-      max.cutoff = 2,
+      max.cutoff = max.cutoff,
       pt.size = 1)  +
       ggtitle(paste(motifs[[motif]],names(motifs[motif]), sep = " ")) +
       theme(plot.title = element_text(size = 15)) + NoLegend()
@@ -138,7 +138,7 @@ GetChromVarPlots <- function(object, motifs, reduction){
 ```
 
 ``` r
-GetChromVarPlotsPlusLegend <- function(object, motifs, reduction){
+GetChromVarPlotsPlusLegend <- function(object, motifs, reduction, max.cutoff){
   DefaultAssay(object) <- "chromvar"
   mylist <- list()
   for(motif in 1:length(motifs)){
@@ -147,7 +147,7 @@ GetChromVarPlotsPlusLegend <- function(object, motifs, reduction){
       reduction = reduction,
       features = motifs[[motif]],
       min.cutoff = 'q10',
-      max.cutoff = 2,
+      max.cutoff = max.cutoff,
       pt.size = 1)  +
       ggtitle(paste(motifs[[motif]],names(motifs[motif]), sep = " ")) +
       theme(plot.title = element_text(size = 15))
@@ -157,6 +157,8 @@ GetChromVarPlotsPlusLegend <- function(object, motifs, reduction){
   return(mylist)
 }
 ```
+
+only need to run once
 
 ``` r
 # HB13 <- RunChromVAR(
@@ -186,41 +188,7 @@ names(motifs1) <- motif1.names
 
 ``` r
 HB13.cdx4 <- FeaturePlot(HB13, features = "cdx4", reduction = "wnn.umap", max.cutoff = 1.3)
-HB13.hoxb7a <- FeaturePlot(HB13, features = "hoxb7a", reduction = "wnn.umap", max.cutoff = 1.3)
 HB13.hoxb9a <- FeaturePlot(HB13, features = "hoxb9a", reduction = "wnn.umap", max.cutoff = 1.3)
-```
-
-``` r
-HB13.exp <- HB13.cdx4 + HB13.hoxb7a + HB13.hoxb9a + plot_layout(ncol = 3, guides = "collect")
-HB13.exp
-```
-
-![](Figure1_files/figure-gfm/HB13_exp-1.png)<!-- -->
-
-``` r
-HB13.cv.motif.legend <- GetChromVarPlotsPlusLegend(HB13, motifs1, "wnn.umap")
-HB13.cv.list <- GetChromVarPlots(HB13, motifs1, "wnn.umap")
-wrap_plots(HB13.cv.motif.legend)
-```
-
-![](Figure1_files/figure-gfm/getchromvarplots-1.png)<!-- -->
-
-``` r
-HB13.motif1 <- HB13.cv.motif.legend[[1]] + HB13.cv.list[[2]] + plot_layout(ncol = 2, guides = "collect")
-HB13.motif1
-```
-
-![](Figure1_files/figure-gfm/HB13_motif1-1.png)<!-- -->
-
-``` r
-HB13.motif2 <- HB13.cv.motif.legend[[3]] + HB13.cv.list[[4]] + HB13.cv.list[[5]] + HB13.cv.list[[6]] + 
-  plot_layout(ncol = 4, guides = "collect")
-HB13.motif2
-```
-
-![](Figure1_files/figure-gfm/HB13_motif2-1.png)<!-- -->
-
-``` r
 HB13.crabp2a <- FeaturePlot(HB13, features = "crabp2a", reduction = "wnn.umap", max.cutoff = 1.3)
 HB13.rorcb <- FeaturePlot(HB13, features = "rorcb", reduction = "wnn.umap", max.cutoff = 1.3)
 HB13.egr2b <- FeaturePlot(HB13, features = "egr2b", reduction = "wnn.umap", max.cutoff = 1.3)
@@ -228,63 +196,80 @@ HB13.mafba <- FeaturePlot(HB13, features = "mafba", reduction = "wnn.umap", max.
 ```
 
 ``` r
-HB13.exp2 <- HB13.crabp2a + HB13.rorcb + HB13.egr2b + HB13.mafba + plot_layout(ncol = 4, guides = "collect")
-HB13.exp2
+HB13.cdx4 + HB13.hoxb9a + HB13.crabp2a + HB13.rorcb + HB13.egr2b + HB13.mafba + plot_layout(ncol = 3, guides = "collect")
 ```
 
-![](Figure1_files/figure-gfm/HB13_exp2-1.png)<!-- -->
+![](Figure1_files/figure-gfm/HB13_exp-1.png)<!-- --> rerun without
+legends
+
+``` r
+HB13.cdx4 <- FeaturePlot(HB13, features = "cdx4", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.hoxb9a <- FeaturePlot(HB13, features = "hoxb9a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.crabp2a <- FeaturePlot(HB13, features = "crabp2a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.rorcb <- FeaturePlot(HB13, features = "rorcb", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.egr2b <- FeaturePlot(HB13, features = "egr2b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB13.mafba <- FeaturePlot(HB13, features = "mafba", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+```
+
+``` r
+HB13.cv.motif.legend <- GetChromVarPlotsPlusLegend(HB13, motifs1, "wnn.umap", 1.3)
+HB13.cv.list <- GetChromVarPlots(HB13, motifs1, "wnn.umap", 1.3)
+wrap_plots(HB13.cv.motif.legend)
+```
+
+![](Figure1_files/figure-gfm/getchromvarplots-1.png)<!-- -->
 
 ## HB16hpf
 
 ``` r
-HB16.cv.motif.legend <- GetChromVarPlotsPlusLegend(HB16, motifs1, "wnn.umap")
-HB16.cv.list <- GetChromVarPlots(HB16, motifs1, "wnn.umap")
+HB16.cdx4 <- FeaturePlot(HB16, features = "cdx4", reduction = "wnn.umap", max.cutoff = 1.3)
+HB16.hoxb9a <- FeaturePlot(HB16, features = "hoxb9a", reduction = "wnn.umap", max.cutoff = 1.3)
+HB16.crabp2a <- FeaturePlot(HB16, features = "crabp2a", reduction = "wnn.umap", max.cutoff = 1.3)
+HB16.rorcb <- FeaturePlot(HB16, features = "rorcb", reduction = "wnn.umap", max.cutoff = 1.3)
+```
+
+``` r
+HB16.cdx4 + HB16.hoxb9a + HB16.crabp2a + HB16.rorcb + plot_layout(ncol = 2, guides = "collect")
+```
+
+![](Figure1_files/figure-gfm/HB16_exp1-1.png)<!-- --> rerun without
+legends
+
+``` r
+HB16.cdx4 <- FeaturePlot(HB16, features = "cdx4", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB16.hoxb9a <- FeaturePlot(HB16, features = "hoxb9a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB16.crabp2a <- FeaturePlot(HB16, features = "crabp2a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+HB16.rorcb <- FeaturePlot(HB16, features = "rorcb", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
+```
+
+``` r
+HB16.cv.motif.legend <- GetChromVarPlotsPlusLegend(HB16, motifs1, "wnn.umap", 1.3)
+HB16.cv.list <- GetChromVarPlots(HB16, motifs1, "wnn.umap", 1.3)
 wrap_plots(HB16.cv.motif.legend)
 ```
 
 ![](Figure1_files/figure-gfm/HB16.getchromvarplots-1.png)<!-- -->
 
-``` r
-HB16.motif <- HB16.cv.motif.legend[[1]] + HB16.cv.list[[2]]  + 
-  plot_layout(ncol = 2, guides = "collect")
-HB16.motif
-```
-
-![](Figure1_files/figure-gfm/HB16_motif-1.png)<!-- -->
-
-``` r
-HB16.crabp2a <- FeaturePlot(HB16, features = "cdx4", reduction = "wnn.umap", max.cutoff = 1.3)
-HB16.rorcb <- FeaturePlot(HB16, features = "hoxb9a", reduction = "wnn.umap", max.cutoff = 1.3)
-HB16.egr2b <- FeaturePlot(HB16, features = "crabp2a", reduction = "wnn.umap", max.cutoff = 1.3)
-HB16.mafba <- FeaturePlot(HB16, features = "rorcb", reduction = "wnn.umap", max.cutoff = 1.3)
-```
-
-``` r
-HB16.exp <- HB16.crabp2a + HB16.rorcb + plot_layout(ncol = 2, guides = "collect")
-HB16.exp
-```
-
-![](Figure1_files/figure-gfm/HB16_exp1-1.png)<!-- -->
-
-``` r
-HB16.exp2 <- HB16.egr2b + HB16.mafba + plot_layout(ncol = 2, guides = "collect")
-HB16.exp2
-```
-
-![](Figure1_files/figure-gfm/HB16_exp2-1.png)<!-- --> \# Figure 1
-combined plots
+# Figure 1 combined plots
 
 ``` r
 layout <- "
-AABBB
-AACCC
-DDDDD
-EEEEE
-FFGGG
-HHIII"
+AABC
+AADE
+FGHI
+JKLM
+NNOP
+NNQR
+STUV
+"
 
-combined1 <- umap.HB13 + HB13.exp + HB13.motif1 + HB13.exp2 + HB13.motif2 + 
-  umap.HB16 + HB16.exp + HB16.motif + HB16.exp2 + 
+combined1 <- umap.HB13 + HB13.cdx4 + HB13.cv.motif.legend[[1]] + 
+  HB13.hoxb9a + HB13.cv.list[[2]] + 
+  HB13.crabp2a + HB13.rorcb + HB13.cv.list[[3]] + HB13.cv.list[[4]] +
+  HB13.egr2b + HB13.cv.list[[5]] + HB13.mafba + HB13.cv.list[[6]] +
+  umap.HB16 + HB16.cdx4 + HB16.cv.list[[1]] + 
+  HB16.hoxb9a + HB16.cv.list[[2]] +
+  HB16.crabp2a + HB16.rorcb + HB16.cv.list[[3]] + plot_spacer() +
   plot_layout(design = layout)
 combined1
 ```
@@ -292,29 +277,28 @@ combined1
 ![](Figure1_files/figure-gfm/combined-1.png)<!-- -->
 
 ``` r
-layout <- "
-AAAAAABBBB
-CCCCCCDDDD
-EEEEEEEEEE
-FFFFFFFFFF
-GGGGGGHHHH
-IIIIIIHHHH"
-
-combined2 <- umap.HB13 + umap.HB16 + 
-  HB13.exp + HB13.motif1 + 
-  HB13.exp2 + 
-  HB13.motif2 + 
-  HB16.exp + (HB16.motif + plot_layout(ncol = 1, guides = "collect")) + 
-  HB16.exp2 + 
-  plot_layout(design = layout, heights = c(2,1,1,1,1,1)) +
-  theme(title = element_text(size = 3))
-combined2
+ggsave(filename = "Plots/Figure1.png", width = 15, height = 20, plot = combined1)
 ```
 
-![](Figure1_files/figure-gfm/combined2-1.png)<!-- -->
-
 ``` r
-ggsave(filename = "Plots/Figure1.png", width = 15, height = 20, plot = combined2)
+# layout <- "
+# AAAAAABBBB
+# CCCCCCDDDD
+# EEEEEEEEEE
+# FFFFFFFFFF
+# GGGGGGHHHH
+# IIIIIIHHHH"
+# 
+# combined2 <- umap.HB13 + umap.HB16 + 
+#   HB13.exp + HB13.motif1 + 
+#   HB13.exp2 + 
+#   HB13.motif2 + 
+#   HB16.exp + (HB16.motif + plot_layout(ncol = 1, guides = "collect")) + 
+#   HB16.exp2 + 
+#   plot_layout(design = layout, heights = c(2,1,1,1,1,1)) +
+#   theme(title = element_text(size = 3))
+# combined2
+# ggsave(filename = "Plots/Figure1.png", width = 15, height = 20, plot = combined2)
 ```
 
 ``` r

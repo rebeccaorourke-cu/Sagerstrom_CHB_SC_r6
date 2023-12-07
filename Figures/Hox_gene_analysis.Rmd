@@ -1,0 +1,114 @@
+---
+title: "CHB subset hox gene comparisons R Notebook"
+output: 
+  html_document:
+    df_print: paged
+  github_document: default
+---
+
+# 1. libraries and functions
+```{r, results=F}
+suppressPackageStartupMessages({
+  library(Seurat)
+#  library(org.Dr.eg.db)
+#  library(BSgenome.Drerio.UCSC.danRer11)
+  library(Signac)
+#  library(knitr)
+#  library(kableExtra)
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+#  library(limma)
+#  library(JASPAR2020)
+  library(patchwork)
+#  library(TFBSTools)
+#  library(motifmatchr)
+#  library(harmony)
+  library(EnhancedVolcano)
+})
+options(future.globals.maxSize = 4000 * 1024^2)
+```
+
+# 2. Read data and CHB subset
+```{r}
+neural <- readRDS(file = "../data/int.neural.3WT.subset.RDS")
+```
+
+```{r}
+DimPlot(neural, group.by = "intClusters", reduction = "wnn.umap") + scale_color_igv()
+```
+
+```{r}
+Idents(neural) <- "intClusters"
+CHB.subset <- subset(neural, idents = c("CaudHB.1","CaudHB.2","CaudHB.3"))
+DimPlot(CHB.subset, reduction = "wnn.umap",split.by = "orig.ident")
+```
+
+# 3. hoxb4a, hoxc4a or hoxd4a expressing vs non-expressing cells
+
+```{r, fig.height=10, fig.width=10}
+DefaultAssay(CHB.subset) <- "SCT"
+FeaturePlot(CHB.subset, features = c("hoxb4a","hoxc4a","hoxd4a"), reduction = "wnn.umap", split.by = "orig.ident")
+```
+```{r}
+## Make subset of cells expressing FOXP3
+hox.subset <- subset(CHB.subset, subset = hoxb4a > 0 | hoxc4a >0 | hoxd4a > 0)
+
+## Get cell names
+cellNames <- rownames(hox.subset@meta.data)
+
+## Mutate a column in original SO metadata
+CHB.subset$barcode <- rownames(CHB.subset@meta.data)
+CHB.subset@meta.data <- CHB.subset@meta.data %>% mutate(hox_4a = ifelse((CHB.subset$barcode %in% cellNames), "Pos",  "Neg"))
+
+DimPlot(CHB.subset, group.by = "hox_4a", split.by = "orig.ident",reduction = "wnn.umap")
+```
+
+# 4. DE genes between hox+/- cells
+
+## 4.1 HB13hpf hox+/- DE genes
+```{r}
+Idents(CHB.subset) <- "orig.ident"
+CHB.HB13 <- subset(CHB.subset, idents = "HB13hpf")
+Idents(CHB.HB13) <- "hox_4a"
+HB13.genes <- FindMarkers(CHB.HB13, ident.1 = "Pos", ident.2 = "Neg", recorrect_umi = FALSE)
+head(HB13.genes)
+write.table(HB13.genes, file = "Markers/HB13hpf.hoxDEgenes.txt", sep = "\t", quote = F, col.names = NA)
+```
+
+```{r, fig.width=10, fig.height=10}
+p.HB13 <- EnhancedVolcano(HB13.genes,
+                         lab = rownames(HB13.genes),
+                         x = "avg_log2FC",
+                         y = "p_val",
+                         title = "HB13hpf hox Pos/Neg cells Volcano plot",
+                         subtitle = NULL)
+p.HB13
+saveRDS(p.HB13, file = "Plots/HB13_hox_vol.RDS")
+```
+
+## 4.1 HB16hpf hox+/- DE genes
+```{r}
+Idents(CHB.subset) <- "orig.ident"
+CHB.HB16 <- subset(CHB.subset, idents = "HB16hpf")
+Idents(CHB.HB16) <- "hox_4a"
+HB16.genes <- FindMarkers(CHB.HB16, ident.1 = "Pos", ident.2 = "Neg", recorrect_umi = FALSE)
+head(HB16.genes)
+write.table(HB16.genes, file = "Markers/HB16hpf.hoxDEgenes.txt", sep = "\t", quote = F, col.names = NA)
+```
+
+```{r, fig.width=10, fig.height=10}
+p.HB16 <- EnhancedVolcano(HB16.genes,
+                         lab = rownames(HB16.genes),
+                         x = "avg_log2FC",
+                         y = "p_val",
+                         title = "HB16hpf hox Pos/Neg cells Volcano plot",
+                         subtitle = NULL)
+p.HB16
+saveRDS(p.HB16, file = "Plots/HB16_hox_vol.RDS")
+```
+
+```{r}
+sessionInfo()
+```
+

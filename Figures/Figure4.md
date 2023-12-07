@@ -648,9 +648,9 @@ dev.off()
 
 ``` r
 #wrap_plots(hm_list, ncol = 4, heights = c(4.48,1,2.13,7.45))
-p1 <- wrap_plots(hm_list[["SC"]]) / plot_spacer() + plot_layout(heights = c(4.48,2.97))
+p1 <- wrap_plots(hm_list[["r6"]]) / plot_spacer() + plot_layout(heights = c(2.13,5.32))
 p2 <- wrap_plots(hm_list[["CHB"]]) / plot_spacer() + plot_layout(heights = c(1,6.45))
-p3 <- wrap_plots(hm_list[["r6"]]) / plot_spacer() + plot_layout(heights = c(2.13,5.32))
+p3 <- wrap_plots(hm_list[["SC"]]) / plot_spacer() + plot_layout(heights = c(4.48,2.97))
 p4 <- wrap_plots(hm_list[["all"]]) / plot_spacer() + plot_layout(heights = c(7.45,0.01))
 plot_spacer() +  p1 + p2 + p3 + p4 + plot_layout(ncol = 5, widths = c(0.01,1,1,1,1.5), guides = 'collect')
 ```
@@ -667,9 +667,9 @@ HB16.vp <- readRDS(file = "../VolcanoPlots/Plots/HB16_volcanoPlots.RDS")
 ```
 
 ``` r
-p1 <- wrap_plots(hm_list[["SC"]]) / plot_spacer() + plot_layout(heights = c(4.48,0.01))
+p1 <- wrap_plots(hm_list[["r6"]]) / plot_spacer() + plot_layout(heights = c(2.13,2.35))
 p2 <- wrap_plots(hm_list[["CHB"]]) / plot_spacer() + plot_layout(heights = c(1,3.48))
-p3 <- wrap_plots(hm_list[["r6"]]) / plot_spacer() + plot_layout(heights = c(2.13,2.35))
+p3 <- wrap_plots(hm_list[["SC"]]) / plot_spacer() + plot_layout(heights = c(4.48,0.01))
 p4 <- wrap_plots(hm_list[["all"]]) / plot_spacer() + plot_layout(heights = c(7.45,0.01))
 
 layout = "

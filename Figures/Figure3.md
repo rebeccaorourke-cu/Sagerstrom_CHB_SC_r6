@@ -72,8 +72,22 @@ combined
 
 ![](Figure3_files/figure-gfm/combined-1.png)<!-- -->
 
+Volcano plots
+
 ``` r
-ggsave(filename = "Plots/Figure3.png", height = 15, width = 15, plot = combined)
+p.HB13 <- readRDS(file = "Plots/HB13_hox_vol.RDS")
+p.HB16 <- readRDS(file = "Plots/HB16_hox_vol.RDS")
+```
+
+``` r
+combined2 <- combined / (p.HB13 + p.HB16) + plot_layout(heights = c(4,1))
+combined2
+```
+
+![](Figure3_files/figure-gfm/combined2-1.png)<!-- -->
+
+``` r
+ggsave(filename = "Plots/Figure3.png", height = 20, width = 15, plot = combined2)
 ```
 
 ``` r

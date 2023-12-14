@@ -1,0 +1,123 @@
+---
+title: "R draw unrooted cluster trees"
+output:
+  github_document: default
+  html_document:
+    df_print: paged
+---
+Note because Seurat Object was made with Seurat 4.0 it doesn't have format needed (SCT feature models) for BuildClusterTree in Seurat v4.3.  So running in renv with Seurat v 4.0.5.
+
+```{r libraries, results=F}
+library(Seurat)
+library(Signac)
+library(dplyr)
+library(ggplot2)
+library(ggsci)
+options(future.globals.maxSize = 4000 * 1024^2)
+```
+
+# Read data
+```{r readdata.10}
+E10hpf <- readRDS("~/Documents/Projects/Sagerstrom/CHB_SC_r6_manuscript/data/HB10hpf_neural.RDS")
+Idents(E10hpf) <- "Clusters"
+DefaultAssay(E10hpf) <- "SCT"
+DimPlot(E10hpf, reduction = "wnn.umap") + scale_color_igv()
+```
+
+Rename CHB and SC clusters to match HB13hpf and correct CHB.1 to SC.  See Match_CHB_SC_Cluster_Names.
+```{r rename_HB10}
+Idents(E10hpf) <- "Clusters"
+E10hpf <- RenameIdents(E10hpf,
+                    "SC.1" = "oldSC.1",
+                    "SC.2" = "oldSC.2",
+                    "SC.3" = "oldSC.3")
+E10hpf <- RenameIdents(E10hpf,
+                    "CaudHB.1" = "SC.1a",
+                    "CaudHB.2" = "CHB.1",
+                    "CaudHB.3" = "CHB.2",
+                    "oldSC.1" = "SC.3a",
+                    "oldSC.2" = "SC.1b",
+                    "oldSC.3" = "SC.3b")
+DimPlot(E10hpf, reduction = "wnn.umap") + scale_color_igv()
+```
+
+No need to rename HB13hpf clusters since CHB and SC cluster numbers based on HB13hpf dataset.
+
+```{r readdata.13}
+HB13hpf <- readRDS("~/Documents/Projects/Sagerstrom/CHB_SC_r6_manuscript/data/HB13hpf_neural.RDS")
+Idents(HB13hpf) <- "Clusters"
+DimPlot(HB13hpf, reduction = "wnn.umap") + scale_color_igv()
+```
+
+```{r readdata.16}
+HB16hpf <- readRDS("~/Documents/Projects/Sagerstrom/CHB_SC_r6_manuscript/data/HB16hpf_neural.RDS")
+Idents(HB16hpf) <- "Clusters"
+DimPlot(HB16hpf, reduction = "wnn.umap") + scale_color_igv()
+```
+
+Rename CHB and SC clusters to match HB13hpf. See Match_CHB_SC_Cluster_Names
+
+```{r rename_HB16}
+Idents(HB16hpf) <- "Clusters"
+HB16hpf <- RenameIdents(HB16hpf,
+                     "CHB.1" = "oldCHB.1",
+                     "CHB.2" = "oldCHB.2",
+                     "CHB.3" = "oldCHB.3",
+                     "CHB.4" = "oldCHB.4",
+                     "SC.2" = "oldSC.2",
+                     "SC.3" = "oldSC.3")
+HB16hpf <- RenameIdents(HB16hpf,
+                     "oldCHB.1" = "CHB.3",
+                     "oldCHB.2" = "CHB.1",
+                     "oldCHB.3" = "CHB.2",
+                     "oldCHB.4" = "CHB.1",
+                     "oldSC.2" = "SC.3",
+                     "oldSC.3" = "SC.2")
+DimPlot(HB16hpf, reduction = "wnn.umap") + scale_color_igv()
+```
+
+
+# Build and Plot Cluster Trees
+```{r dendogram.10}
+E10hpf <- BuildClusterTree(E10hpf, graph = "wsnn", slot = "scale.data")
+data.tree.10 <- Tool(object = E10hpf, slot = "BuildClusterTree")
+png(filename = "Plots/E10hpf_dendogram.png",width = 8, height = 8, units = "in", res=1200)
+p1 <- ape::plot.phylo(x = data.tree.10,  use.edge.length = FALSE, cex = 0.5, type = "u")
+p1
+dev.off()
+png(filename = "Plots/E10hpf_dendogram_vs2.png",width = 8, height = 8, units = "in", res=1200)
+p2 <- ape::plot.phylo(x = data.tree.10,  use.edge.length = FALSE, cex = 0.8, type = "u", lab4ut = "axial")
+p2
+dev.off()
+```
+
+```{r dendogram.13}
+HB13hpf <- BuildClusterTree(HB13hpf, graph = "wsnn", slot = "scale.data")
+data.tree.13 <- Tool(object = HB13hpf, slot = "BuildClusterTree")
+png(filename = "Plots/HB13hpf_dendogram.png",width = 8, height = 8, units = "in", res=1200)
+p1 <- ape::plot.phylo(x = data.tree.13,  use.edge.length = FALSE, cex = 0.5, type = "u")
+p1
+dev.off()
+png(filename = "Plots/HB13hpf_dendogram_vs2.png",width = 8, height = 8, units = "in", res=1200)
+p2 <- ape::plot.phylo(x = data.tree.13,  use.edge.length = FALSE, cex = 0.8, type = "u", lab4ut = "axial")
+p2
+dev.off()
+```
+
+```{r dendogram.16}
+HB16hpf <- BuildClusterTree(HB16hpf, graph = "wsnn", slot = "scale.data")
+data.tree.16 <- Tool(object = HB16hpf, slot = "BuildClusterTree")
+png(filename = "Plots/HB16hpf_dendogram.png",width = 8, height = 8, units = "in", res=1200)
+p1 <- ape::plot.phylo(x = data.tree.16,  use.edge.length = FALSE, cex = 0.5, type = "u")
+p1
+dev.off()
+png(filename = "Plots/HB16hpf_dendogram_vs2.png",width = 8, height = 8, units = "in", res=1200)
+p2 <- ape::plot.phylo(x = data.tree.16,  use.edge.length = FALSE, cex = 0.8, type = "u", lab4ut = "axial")
+p2
+dev.off()
+```
+
+```{r sessioninfo}
+sessionInfo()
+```
+

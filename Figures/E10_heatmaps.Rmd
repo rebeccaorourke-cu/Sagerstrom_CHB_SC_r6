@@ -1,0 +1,208 @@
+---
+title: "R E10hpf heatmaps of SC, CHB and HB.2"
+output:
+  html_document:
+    df_print: paged
+  github_document: default
+---
+
+# 1 libraries
+```{r libraries, results=F}
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(Signac)
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(patchwork)
+  library(dittoSeq)
+  library(ComplexHeatmap)
+})
+options(future.globals.maxSize = 4000 * 1024^2)
+```
+
+# 2 read data
+
+```{r readdata}
+E10hpf <- readRDS("~/Documents/Projects/Sagerstrom/scRNA-seq_ATAC-seq_reanalysis_2021_07_12/InitialExploration/Neural_subsets/RDSfiles/HB10hpf_neural.RDS")
+```
+
+combine CaudHB clusters, SC clusters
+```{r process2}
+E10hpf$Clusters <- as.character(E10hpf$Clusters)
+E10hpf$Clusters[E10hpf$Clusters %in% c("SC.1","SC.2","SC.3")] <- "SC"
+E10hpf$Clusters[E10hpf$Clusters %in% c("CaudHB.1","CaudHB.2","CaudHB.3")] <- "CHB"
+E10hpf$Clusters <- as.factor(E10hpf$Clusters)
+```
+
+```{r dimplot, fig.height=5, fig.width=10}
+p1 <- DimPlot(E10hpf, reduction = "wnn.umap", group.by = "Clusters") + scale_color_igv()
+p1
+```
+
+```{r process3}
+Idents(E10hpf) <- "Clusters"
+HB.subset <- subset(E10hpf, idents = c("HB.2","SC","CHB"))
+HB.subset$Clusters <- factor(HB.subset$Clusters, levels = c("HB.2","CHB","SC"))
+HB.subset$Sample <- HB.subset$orig.ident
+cells.rhb = WhichCells(HB.subset, idents = c("HB.2","CHB","SC"))
+```
+
+# 3 Get DE gene lists for various clusters
+
+## 3.1 SC from E10hpf
+```{r SC13}
+DefaultAssay(E10hpf) <- "SCT"
+Idents(E10hpf) <- "Clusters"
+SC.markers <- FindMarkers(E10hpf, ident.1 = "SC", ident.2 = c("CHB","HB.2"), only.pos = TRUE, verbose = F)  
+SC.markers$gene <- rownames(SC.markers) 
+sprintf("Total number of DE genes = %d",nrow(SC.markers))
+sprintf("Number of DE genes with p_val_adj < 0.05 = %d",nrow(SC.markers[SC.markers$p_val_adj < 0.05,]))
+```
+
+## 3.2 CHB from E10hpf
+```{r CHB13}
+CHB.markers <- FindMarkers(E10hpf, ident.1 = "CHB", ident.2 = c("SC","HB.2"), only.pos = TRUE, verbose = F)  
+CHB.markers$gene <- rownames(CHB.markers) 
+sprintf("Total number of DE genes = %d",nrow(CHB.markers))
+sprintf("Number of DE genes with p_val_adj < 0.05 = %d",nrow(CHB.markers[CHB.markers$p_val_adj < 0.05,]))
+```
+
+## 3.3 HB.2 from E10hpf
+```{r r613}
+HB2.markers <- FindMarkers(E10hpf, ident.1 = "HB.2", ident.2 = c("SC","CHB"), only.pos = TRUE, verbose = F)   
+HB2.markers$gene <- rownames(HB2.markers) 
+sprintf("Total number of DE genes = %d",nrow(HB2.markers))
+sprintf("Number of DE genes with p_val_adj < 0.05 = %d",nrow(HB2.markers[HB2.markers$p_val_adj < 0.05,]))
+```
+
+# 4. Heatmaps
+
+```{r hmlist}
+hm_list <- list()
+```
+
+## 4.1 SC DE genes
+```{r hmSC, fig.width=7, fig.height=15}
+SCgenes <- SC.markers$gene[SC.markers$p_val_adj <0.05]
+DefaultAssay(HB.subset) <- "SCT"
+hm_SC <- dittoHeatmap(HB.subset, 
+                             genes = SCgenes, 
+                             cells = cells.rhb, 
+                             assay = "SCT", #slot = "data", 
+                             annot.by = c("Clusters"), 
+                             scaled.to.max = T, 
+                             show_rownames = T,
+                             cluster_rows = F,
+                             drop_levels = T,
+                      complex = T)
+hm_SC@row_names_param[["gp"]][["fontsize"]] = 8
+hm_SC
+hm_list[["SC"]] <- hm_SC %>%
+  draw(show_heatmap_legend = F, show_annotation_legend = F) %>%
+  grid.grabExpr()
+```
+
+
+## 4.2 CHB DE genes
+```{r hmCHB, fig.width=7, fig.height=5}
+CHBgenes <- CHB.markers$gene[CHB.markers$p_val_adj <0.05]
+DefaultAssay(HB.subset) <- "SCT"
+hm_CHB <- dittoHeatmap(HB.subset, 
+                             genes = CHBgenes, 
+                             cells = cells.rhb, 
+                             assay = "SCT", #slot = "data", 
+                             annot.by = c("Clusters"), 
+                             scaled.to.max = T, 
+                             show_rownames = T,
+                             cluster_rows = F,
+                             drop_levels = T,
+                       complex = T)
+hm_CHB@row_names_param[["gp"]][["fontsize"]] = 8
+hm_CHB
+hm_list[["CHB"]] <- hm_CHB %>%
+  draw(show_heatmap_legend = F, show_annotation_legend = F) %>%
+  grid.grabExpr()
+```
+
+
+## 4.3 r6 DE genes
+
+```{r hmr6, fig.width=7, fig.height=7}
+HB2genes <- HB2.markers$gene[HB2.markers$p_val_adj <0.05]
+DefaultAssay(HB.subset) <- "SCT"
+hm_HB2 <- dittoHeatmap(HB.subset,
+                             genes = HB2genes,
+                             cells = cells.rhb,
+                             assay = "SCT", #slot = "data",
+                             annot.by = c("Clusters"),
+                             scaled.to.max = T,
+                             show_rownames = T,
+                             cluster_rows = F,
+                      complex = T)
+hm_HB2@row_names_param[["gp"]][["fontsize"]] = 8
+hm_HB2
+hm_list[["HB2"]] <- hm_HB2 %>%
+  draw(show_heatmap_legend = F, show_annotation_legend = F) %>%
+  grid.grabExpr()
+```
+
+
+## 4.4 all SC, CHB, r6 DE genes together
+
+```{r allgenes, fig.width=7, fig.height=20}
+allgenes <- unique(c(SCgenes,CHBgenes,HB2genes))
+```
+
+```{r hm_comb, fig.width=7, fig.height=10}
+DefaultAssay(HB.subset) <- "SCT"
+comb_heatmap <- dittoHeatmap(HB.subset, 
+                             genes = allgenes, 
+                             cells = cells.rhb, 
+                             assay = "SCT", #slot = "data", 
+                             annot.by = c("Clusters"), 
+                             scaled.to.max = T, 
+                             show_rownames = F,
+                             clustering_method = "ward.D2")
+```
+
+Use h=14 clustering of genes
+```{r hm_df}
+as.data.frame(sort(cutree(comb_heatmap$tree_row, h=10)))
+```
+
+```{r hm_combsplit}
+comb.split = data.frame(cutree(comb_heatmap$tree_row, h=10)) %>%
+  dplyr::rename("hm_cluster" = 1) 
+```
+
+```{r hmall, fig.width=7, fig.height=20}
+hm_all <- dittoHeatmap(HB.subset, genes = allgenes,
+             cells = cells.rhb, assay = "SCT", slot = "data",
+             annot.by = c("Clusters"), scaled.to.max = T, show_rownames = T,
+             row_split = comb.split,complex = T,name = "chromVar\n scaled",row_title_gp = gpar(fontsize = 8),
+             height = 39*unit(5, "mm"))
+hm_all@row_names_param[["gp"]][["fontsize"]] = 8
+hm_all
+hm_list[["all"]] <- hm_all %>%
+  draw(align_heatmap_legend = "heatmap_top") %>%
+  grid.grabExpr()
+ggsave(hm_list[["all"]], file = "Plots/E10hpf_SC_CHB_HB2_genes_heatmap.png")
+saveRDS(hm_list[["all"]], file = "Plots/E10_heatmap.RDS")
+```
+
+
+```{r hm_comb_plots, fig.width=15, fig.height=15}
+# p1 <- wrap_plots(hm_list[["HB2"]]) / plot_spacer() + plot_layout(heights = c(1,4.444))
+# p2 <- wrap_plots(hm_list[["CHB"]]) / plot_spacer() + plot_layout(heights = c(1.111,4.333))
+# p3 <- wrap_plots(hm_list[["SC"]]) / plot_spacer() + plot_layout(heights = c(3.333,2.111))
+# p4 <- wrap_plots(hm_list[["all"]]) / plot_spacer() + plot_layout(heights = c(5.444,0.01))
+# p <- plot_spacer() +  p1 + p2 + p3 + p4 + plot_layout(ncol = 5, widths = c(0.01,1,1,1.2,2), guides = 'collect')
+# p
+```
+
+
+```{r}
+sessionInfo()
+```
+

@@ -1,0 +1,216 @@
+---
+title: "R Figure 6"
+output:
+  html_document:
+    df_print: paged
+  github_document: default
+---
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(Signac)
+  library(BSgenome.Drerio.UCSC.danRer11)
+  library(EnhancedVolcano)
+  library(ggsci)
+  library(patchwork)
+})
+```
+
+# Read data
+```{r readdata.10}
+E10 <- readRDS("../data/HB10hpf_neural.RDS")
+Idents(E10) <- "Clusters"
+DefaultAssay(E10) <- "SCT"
+DimPlot(E10, reduction = "wnn.umap") + scale_color_igv()
+```
+
+```{r heatmap}
+hm_all <- readRDS(file = "Plots/E10_heatmap.RDS")
+```
+
+Rename CHB and SC clusters to match HB13hpf and correct CHB.1 to SC.  See Match_CHB_SC_Cluster_Names.
+```{r rename_E10_A}
+Idents(E10) <- "Clusters"
+E10 <- RenameIdents(E10,
+                    "FB & eye.1" = "FB & eye",
+                    "FB &  eye.2" = "FB & eye",
+                    "FB & eye.3" = "FB & eye",
+                    "FB & eye.4" = "FB & eye",
+                    "FB & eye.5" = "FB & eye",
+                    "FB & eye.6" = "FB & eye",
+                    "FB & eye.7" = "FB & eye",
+                    "FB & eye.8" = "FB & eye",
+                    "FB.1" = "FB",
+                    "MB.1" = "MB",
+                    "MHB.1" = "MHB",
+                    "MHB.2" = "MHB",
+                    "MHB.3" = "MHB",
+                    "CaudHB.1" = "SC",
+                    "CaudHB.2" = "CHB",
+                    "CaudHB.3" = "CHB",
+                    "SC.1" = "SC",
+                    "SC.2" = "SC",
+                    "SC.3" = "SC",
+                    "NC.1" = "NC",
+                    "NC.2" = "NC")
+levels(E10) <- c("FB & eye","FB","MB","MHB","HB.1","HB.2","HB.3","CHB","SC","NC")
+umap.A <- DimPlot(E10, reduction = "wnn.umap") + scale_color_igv() + 
+  guides(color = guide_legend(override.aes = list(size=4))) + 
+  theme(legend.position = "bottom")
+umap.A
+```
+Rename CHB and SC clusters to match HB13hpf and correct CHB.1 to SC.  See Match_CHB_SC_Cluster_Names.
+```{r rename_E10_B}
+Idents(E10) <- "Clusters"
+E10 <- RenameIdents(E10,
+                    "SC.1" = "oldSC.1",
+                    "SC.2" = "oldSC.2",
+                    "SC.3" = "oldSC.3",
+                    "FB.1" = "FB",
+                    "MB.1" = "MB")
+E10 <- RenameIdents(E10,
+                    "CaudHB.1" = "SC.1a",
+                    "CaudHB.2" = "CHB.1",
+                    "CaudHB.3" = "CHB.2",
+                    "oldSC.1" = "SC.3a",
+                    "oldSC.2" = "SC.1b",
+                    "oldSC.3" = "SC.3b")
+levels(E10) <- c("NC.1","NC.2","SC.1a","SC.1b","SC.3a","SC.3b","CHB.1","CHB.2",
+                 "HB.1","HB.2","HB.3","MHB.1","MHB.2","MHB.3","MB","FB",
+                 "FB & eye.1","FB &  eye.2","FB & eye.3","FB & eye.4","FB & eye.5",
+                 "FB & eye.6","FB & eye.7","FB & eye.8")
+umap.B <- DimPlot(E10, reduction = "wnn.umap") + scale_color_igv() + 
+  guides(color = guide_legend(override.aes = list(size=4), ncol = 5)) + 
+  theme(legend.position = "bottom")
+umap.B
+```
+
+# Gene expression and chromvar activity plots
+
+```{r E10_feature}
+E10.cdx4 <- FeaturePlot(E10, features = "cdx4", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) 
+E10.hoxb9a <- FeaturePlot(E10, features = "hoxb9a", reduction = "wnn.umap", 
+                         max.cutoff = 1.3
+                         ) + NoLegend()
+E10.tfap2a <- FeaturePlot(E10, features = "tfap2a", reduction = "wnn.umap", 
+                         max.cutoff = 1.3
+                         ) + NoLegend()
+E10.hnf1ba <- FeaturePlot(E10, features = "hnf1ba", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) + NoLegend()
+E10.col7a1l <- FeaturePlot(E10, features = "col7a1l", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) + NoLegend()
+E10.wnt7ab <- FeaturePlot(E10, features = "wnt7ab", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) + NoLegend()
+E10.mafba <- FeaturePlot(E10, features = "mafba", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) + NoLegend()
+E10.ntn1a <- FeaturePlot(E10, features = "ntn1a", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) + NoLegend()
+E10.zic2b <- FeaturePlot(E10, features = "zic2b", reduction = "wnn.umap", 
+                        max.cutoff = 1.3
+                        ) + NoLegend()
+```
+
+```{r test_feature, fig.width=10, fig.height=10}
+#wrap_plots(list(E10.cdx4,E10.hoxb9a,E10.tfap2a,E10.hnf1ba,E10.col7a1l,E10.wnt7ab,E10.mafba,E10.ntn1a,E10.zic2b), guides = "collect")
+```
+
+```{r function}
+GetChromVarPlots <- function(object, motifs, reduction, max.cutoff){
+  DefaultAssay(object) <- "chromvar"
+  mylist <- list()
+  for(motif in 1:length(motifs)){
+    p <- FeaturePlot(
+      object = object,
+      reduction = reduction,
+      features = motifs[[motif]],
+      min.cutoff = 'q10',
+      max.cutoff = max.cutoff,
+      pt.size = 1)  +
+      ggtitle(paste(motifs[[motif]],names(motifs[motif]), sep = " ")) +
+      theme(plot.title = element_text(size = 15)) + NoLegend()
+    mylist[[motifs[[motif]]]] <- p
+  }
+  
+  return(mylist)
+}
+```
+
+```{r function2}
+GetChromVarPlotsPlusLegend <- function(object, motifs, reduction, max.cutoff){
+  DefaultAssay(object) <- "chromvar"
+  mylist <- list()
+  for(motif in 1:length(motifs)){
+    p <- FeaturePlot(
+      object = object,
+      reduction = reduction,
+      features = motifs[[motif]],
+      min.cutoff = 'q10',
+      max.cutoff = max.cutoff,
+      pt.size = 1)  +
+      ggtitle(paste(motifs[[motif]],names(motifs[motif]), sep = " ")) +
+      theme(plot.title = element_text(size = 15))
+    mylist[[motifs[[motif]]]] <- p
+  }
+  
+  return(mylist)
+}
+```
+
+only need to run once
+```{r E10_runchromvar2}
+# E10 <- RunChromVAR(
+#   object = E10,
+#   genome = BSgenome.Drerio.UCSC.danRer11,
+#   assay = "peaks"
+# )
+# saveRDS(E10, file = "../data/HB10hpf_neural.RDS")
+```
+
+```{r motiflist}
+motif1.names <- c("CDX4","HOXB9","TFAP2A","HNF1B","Mafb")
+motifs1 <- c("MA1473.1","MA1503.1","MA0003.4","MA0153.2","MA0117.2")
+names(motifs1) <- motif1.names
+```
+
+```{r getchromvarplots, fig.width=10, fig.height=10}
+cv.motif.legend <- GetChromVarPlotsPlusLegend(E10, motifs1, "wnn.umap", 3)
+cv.list <- GetChromVarPlots(E10, motifs1, "wnn.umap", 3)
+wrap_plots(cv.motif.legend)
+```
+
+```{r combined, fig.width=15, fig.height=25}
+layout <- "
+AABC
+AADC
+EFGC
+HIJC
+KLMC
+NNOC
+NNOC
+PQOC
+"
+
+combined1 <- umap.A + E10.cdx4 + hm_all + 
+  cv.motif.legend[[1]] +  
+  E10.hoxb9a + E10.tfap2a + E10.hnf1ba +
+  cv.list[[2]] + cv.list[[3]] + cv.list[[3]] +
+  E10.col7a1l + E10.wnt7ab + E10.mafba + 
+  umap.B + plot_spacer() +
+  E10.ntn1a + E10.zic2b +
+  plot_layout(design = layout, widths = c(1,1,1,3))
+combined1
+ggsave(filename = "Plots/Figure6.png", width = 15, height = 25, plot = combined1)
+```
+
+```{r}
+sessionInfo()
+```
+

@@ -88,11 +88,21 @@ rhombomeres into separate clusters.
 DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv()
 ```
 
-![](Figure2_files/figure-gfm/umap_HB16-1.png)<!-- --> Combining multiple
-clusters of same cell type.
+![](Figure2_files/figure-gfm/umap_HB16-1.png)<!-- -->
+
+Combining multiple clusters of same cell type, and renaming CHB and SC
+subclusters to match HB13hpf subclusters as determined in
+Match_CHB_SC_Cluster_Names.
 
 ``` r
 Idents(HB16) <- "Clusters"
+HB16 <- RenameIdents(HB16,
+                     "CHB.1" = "oldCHB.1",
+                     "CHB.2" = "oldCHB.2",
+                     "CHB.3" = "oldCHB.3",
+                     "CHB.4" = "oldCHB.4",
+                     "SC.2" = "oldSC.2",
+                     "SC.3" = "oldSC.3")
 HB16 <- RenameIdents(HB16,
                        "r5.1" = "r5",
                        "r5.2" = "r5",
@@ -100,7 +110,13 @@ HB16 <- RenameIdents(HB16,
                        "MB.2" = "MB",
                        "MHB.1" = "MHB",
                        "MHB.2" = "MHB",
-                       "MHB.3" = "MHB")
+                       "MHB.3" = "MHB",
+                     "oldCHB.1" = "CHB.3",
+                     "oldCHB.2" = "CHB.1",
+                     "oldCHB.3" = "CHB.2",
+                     "oldCHB.4" = "CHB.1",
+                     "oldSC.2" = "SC.3",
+                     "oldSC.3" = "SC.2")
 levels(HB16) <- c("FB","MB","MHB","r1","r2","r3","r4","r5","r6",
                     "DorsNT & NC","Neuron","Ciliated","CHB.1","CHB.2","CHB.3","CHB.4","SC.1","SC.2","SC.3")
 umap.HB16 <- DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv() + 
@@ -108,11 +124,19 @@ umap.HB16 <- DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv() +
 umap.HB16
 ```
 
-![](Figure2_files/figure-gfm/rename_HB16-1.png)<!-- --> \## HB
-integrated
+![](Figure2_files/figure-gfm/rename_HB16-1.png)<!-- -->
+
+## HB integrated
+
+Combining multiple clusters of same cell type and renaming SC
+subclusters to match HB13hpf subclusters, but CHB subcluster types match
+HB13hpf so no need to rename. See Match_CHB_SC_Cluster_Names.
 
 ``` r
 Idents(HB.int) <- "intClusters"
+HB.int <- RenameIdents(HB.int,
+                       "SC.2" = "oldSC.2",
+                       "SC.3" = "oldSC.3")
 HB.int <- RenameIdents(HB.int,
                        "r1&r2.1" = "r1 & r2",
                        "r1&r2.2" = "r1 & r2",
@@ -137,9 +161,11 @@ HB.int <- RenameIdents(HB.int,
                        "CaudHB.1" = "CHB.1",
                        "CaudHB.2" = "CHB.2",
                        "CaudHB.3" = "CHB.3",
-                       "CaudHB.4" = "CHB.4")
+                       "CaudHB.4" = "CHB-10hpf",
+                       "oldSC.2" = "SC.3",
+                       "oldSC.3" = "SC.2")
 levels(HB.int) <- c("MB","MHB","r1 & r2","r1","r2","r3","r4","r5","r6",           
-                  "CHB.1","CHB.2","CHB.3","CHB.4","SC.1","SC.2","SC.3","SC.4",
+                  "CHB.1","CHB.2","CHB.3","CHB-10hpf","SC.1","SC.2","SC.3","SC.4",
                   "Neuron","Ciliated","Neurog","NC.1","NC.2","HB","Mitochondrial")
 umap.HBint <- DimPlot(HB.int, reduction = "wnn.umap") + scale_color_igv() + 
   guides(color = guide_legend(override.aes = list(size=4), ncol=2) )
@@ -157,64 +183,39 @@ HB13.casz1 <- FeaturePlot(HB13, features = "casz1", reduction = "wnn.umap", max.
 HB13.zic2b <- FeaturePlot(HB13, features = "zic2b", reduction = "wnn.umap", max.cutoff = 1.3)
 HB13.ntn1a <- FeaturePlot(HB13, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 HB13.sp8a <- FeaturePlot(HB13, features = "sp8a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
-HB13.lbx1b <- FeaturePlot(HB13, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 ```
-
-``` r
-HB13.plots <- umap.HB13 + HB13.casz1 + HB13.zic2b + HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
-  plot_layout(ncol = 3)
-HB13.plots
-```
-
-![](Figure2_files/figure-gfm/HB13_exp-1.png)<!-- -->
 
 ## HB16hpf
 
 ``` r
 HB16.zic2b <- FeaturePlot(HB16, features = "zic2b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
-HB16.ntn1a <- FeaturePlot(HB16, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3)
+HB16.ntn1a <- FeaturePlot(HB16, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 HB16.lbx1b <- FeaturePlot(HB16, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 HB16.dbx1b <- FeaturePlot(HB16, features = "dbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 ```
-
-``` r
-HB16.plots <- umap.HB16 + HB16.zic2b + HB16.ntn1a + HB16.lbx1b + HB16.dbx1b + 
-  plot_layout(ncol = 3)
-HB16.plots
-```
-
-![](Figure2_files/figure-gfm/HB16_exp-1.png)<!-- -->
 
 ## HB integrated
 
 ``` r
 HBint.zic2b <- FeaturePlot(HB.int, features = "zic2b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
-HBint.lbx1b <- FeaturePlot(HB.int, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3)
+HBint.lbx1b <- FeaturePlot(HB.int, features = "lbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 HBint.dbx1b <- FeaturePlot(HB.int, features = "dbx1b", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 HBint.ntn1a <- FeaturePlot(HB.int, features = "ntn1a", reduction = "wnn.umap", max.cutoff = 1.3) + NoLegend()
 ```
-
-``` r
-HBint.plots <- umap.HBint + HBint.zic2b + HBint.lbx1b + HBint.dbx1b + HBint.ntn1a + 
-  plot_layout(ncol = 3)
-HB16.plots
-```
-
-![](Figure2_files/figure-gfm/HBint_exp-1.png)<!-- -->
 
 # Figure 2 combined plots
 
 ``` r
 layout <- "
-ABC
-DEF
-GHI
-#JK
-LMN
-#OP"
+AABC
+AADE
+FFGH
+FFIJ
+KKLM
+KKNO"
 
 combined <- umap.HB13 + HB13.casz1 + HB13.zic2b + 
-  HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
+  HB13.ntn1a + HB13.sp8a + 
   umap.HB16 + HB16.zic2b + HB16.ntn1a +
   HB16.lbx1b + HB16.dbx1b + 
   umap.HBint + HBint.zic2b + HBint.lbx1b +
@@ -226,38 +227,33 @@ combined
 ![](Figure2_files/figure-gfm/combined-1.png)<!-- -->
 
 ``` r
-ggsave(filename = "Plots/Figure2.png", width = 15, height = 20, plot = combined)
+ggsave(filename = "Plots/Figure2.png", width = 15, height = 18, plot = combined)
 ```
 
 ``` r
-umap.HB13 <- umap.HB13 +
-  guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
-umap.HB16 <- umap.HB16 +
-  guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
-umap.HBint <-  umap.HBint +
-  guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
-layout <- "
-AABC#
-AADEF
-GGHI#
-GGJK#
-LLMN#
-LLOP#"
-
-combined2 <- umap.HB13 + HB13.casz1 + HB13.zic2b + 
-  HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
-  umap.HB16 + HB16.zic2b + HB16.ntn1a +
-  HB16.lbx1b + HB16.dbx1b + 
-  umap.HBint + HBint.zic2b + HBint.lbx1b +
-  HBint.dbx1b + HBint.ntn1a +
-  plot_layout(design = layout)
-combined2
-```
-
-![](Figure2_files/figure-gfm/combined2-1.png)<!-- -->
-
-``` r
-ggsave(filename = "Plots/Figure2_vs2.png", width = 15, height = 20, plot = combined2)
+# umap.HB13 <- umap.HB13 +
+#   guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
+# umap.HB16 <- umap.HB16 +
+#   guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
+# umap.HBint <-  umap.HBint +
+#   guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
+# layout <- "
+# AABC#
+# AADEF
+# GGHI#
+# GGJK#
+# LLMN#
+# LLOP#"
+# 
+# combined2 <- umap.HB13 + HB13.casz1 + HB13.zic2b + 
+#   HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
+#   umap.HB16 + HB16.zic2b + HB16.ntn1a +
+#   HB16.lbx1b + HB16.dbx1b + 
+#   umap.HBint + HBint.zic2b + HBint.lbx1b +
+#   HBint.dbx1b + HBint.ntn1a +
+#   plot_layout(design = layout)
+# combined2
+# ggsave(filename = "Plots/Figure2_vs2.png", width = 15, height = 20, plot = combined2)
 ```
 
 ``` r

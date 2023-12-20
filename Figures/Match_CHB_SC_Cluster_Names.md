@@ -1,3 +1,9 @@
+---
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
 R Match CHB cluster names between samples so CHB.1 et al are the same
 cell type in each
 ================

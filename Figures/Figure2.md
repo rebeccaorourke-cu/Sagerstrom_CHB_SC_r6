@@ -136,7 +136,8 @@ HB13hpf so no need to rename. See Match_CHB_SC_Cluster_Names.
 Idents(HB.int) <- "intClusters"
 HB.int <- RenameIdents(HB.int,
                        "SC.2" = "oldSC.2",
-                       "SC.3" = "oldSC.3")
+                       "SC.3" = "oldSC.3",
+                       "SC.4" = "oldSC.4")
 HB.int <- RenameIdents(HB.int,
                        "r1&r2.1" = "r1 & r2",
                        "r1&r2.2" = "r1 & r2",
@@ -163,9 +164,10 @@ HB.int <- RenameIdents(HB.int,
                        "CaudHB.3" = "CHB.3",
                        "CaudHB.4" = "CHB-10hpf",
                        "oldSC.2" = "SC.3",
-                       "oldSC.3" = "SC.2")
+                       "oldSC.3" = "SC.2",
+                       "oldSC.4" = "SC.1")
 levels(HB.int) <- c("MB","MHB","r1 & r2","r1","r2","r3","r4","r5","r6",           
-                  "CHB.1","CHB.2","CHB.3","CHB-10hpf","SC.1","SC.2","SC.3","SC.4",
+                  "CHB.1","CHB.2","CHB.3","CHB-10hpf","SC.1","SC.2","SC.3",
                   "Neuron","Ciliated","Neurog","NC.1","NC.2","HB","Mitochondrial")
 umap.HBint <- DimPlot(HB.int, reduction = "wnn.umap") + scale_color_igv() + 
   guides(color = guide_legend(override.aes = list(size=4), ncol=2) )

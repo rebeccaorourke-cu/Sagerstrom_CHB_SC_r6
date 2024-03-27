@@ -17,6 +17,7 @@ suppressPackageStartupMessages({
   library(patchwork)
   library(dittoSeq)
   library(ComplexHeatmap)
+  library(openxlsx)
 })
 options(future.globals.maxSize = 4000 * 1024^2)
 ```
@@ -201,6 +202,13 @@ saveRDS(hm_list[["all"]], file = "Plots/E10_heatmap.RDS")
 # p
 ```
 
+```{r DEgene_xlsx}
+DEgenelist <- list()
+DEgenelist[["E10_SCvsCHBandHB.2"]] <- SC.markers[SC.markers$p_val_adj <0.05,]
+DEgenelist[["E10_CHBvsSCandHB.2"]] <- CHB.markers[CHB.markers$p_val_adj <0.05,]
+DEgenelist[["E10_HB.2vsSCandCHB"]] <- HB2.markers[HB2.markers$p_val_adj <0.05,]
+write.xlsx(DEgenelist, file = "Markers/Fig6_SuppFig2_DEgenesTables_forHeatmaps.xlsx", rowNames = T)
+```
 
 ```{r}
 sessionInfo()

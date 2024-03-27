@@ -201,7 +201,7 @@ PQOC
 combined1 <- umap.A + E10.cdx4 + hm_all + 
   cv.motif.legend[[1]] +  
   E10.hoxb9a + E10.tfap2a + E10.hnf1ba +
-  cv.list[[2]] + cv.list[[3]] + cv.list[[3]] +
+  cv.list[[2]] + cv.list[[3]] + cv.list[[4]] +
   E10.col7a1l + E10.wnt7ab + E10.mafba + 
   umap.B + plot_spacer() +
   E10.ntn1a + E10.zic2b +

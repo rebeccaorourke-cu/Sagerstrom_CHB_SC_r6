@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
   library(EnhancedVolcano)
   library(ggsci)
   library(patchwork)
+  library(openxlsx)
 })
 ```
 
@@ -69,6 +70,15 @@ umap.HB13 <- DimPlot(HB13, reduction = "wnn.umap") + scale_color_igv() +
 umap.HB13
 ```
 
+```{r HB13markers}
+HB13clusters <- c("CHB.1","CHB.2","CHB.3","SC.1","SC.2","SC.3")
+DEgenelist.13 <- list()
+for(cluster in HB13clusters){
+  DEgenelist.13[[paste0("Cluster_",cluster)]] <- FindMarkers(HB13, ident.1 = cluster, only.pos = T, verbose = F)
+}
+write.xlsx(DEgenelist.13, file = "Markers/Fig2_HB13_cluster_DEgenes.xlsx", rowNames = T)
+```
+
 ## HB16hpf
 Named clusters after clustering at resolution 6, needed to resolve all rhombomeres into separate clusters.
 ```{r umap_HB16}
@@ -106,6 +116,16 @@ umap.HB16 <- DimPlot(HB16, reduction = "wnn.umap") + scale_color_igv() +
   guides(color = guide_legend(override.aes = list(size=4), ncol=2) )
 umap.HB16
 ```
+
+```{r HB16markers}
+HB16clusters <- c("CHB.1","CHB.2","CHB.3","SC.1","SC.2","SC.3")
+DEgenelist.16 <- list()
+for(cluster in HB16clusters){
+  DEgenelist.16[[paste0("Cluster_",cluster)]] <- FindMarkers(HB16, ident.1 = cluster, only.pos = T, verbose = F)
+}
+write.xlsx(DEgenelist.16, file = "Markers/Fig2_HB16_cluster_DEgenes.xlsx", rowNames = T)
+```
+
 
 ## HB integrated
 
@@ -151,6 +171,15 @@ levels(HB.int) <- c("MB","MHB","r1 & r2","r1","r2","r3","r4","r5","r6",
 umap.HBint <- DimPlot(HB.int, reduction = "wnn.umap") + scale_color_igv() + 
   guides(color = guide_legend(override.aes = list(size=4), ncol=2) )
 umap.HBint
+```
+
+```{r HBintmarkers}
+HBintclusters <- c("CHB.1","CHB.2","CHB.3","CHB-10hpf","SC.1","SC.2","SC.3")
+DEgenelist.int <- list()
+for(cluster in HBintclusters){
+  DEgenelist.int[[paste0("Cluster_",cluster)]] <- FindMarkers(HB.int, ident.1 = cluster, only.pos = T, verbose = F, recorrect_umi=F)
+}
+write.xlsx(DEgenelist.int, file = "Markers/Fig2_HBintegrated_cluster_DEgenes.xlsx", rowNames = T)
 ```
 
 # Gene expression and chromvar activity plots
@@ -205,31 +234,6 @@ combined
 ggsave(filename = "Plots/Figure2.png", width = 15, height = 18, plot = combined)
 ```
 
-```{r combined2, fig.width=15, fig.height=20}
-# umap.HB13 <- umap.HB13 +
-#   guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
-# umap.HB16 <- umap.HB16 +
-#   guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
-# umap.HBint <-  umap.HBint +
-#   guides(color = guide_legend(override.aes = list(size=4), ncol=1) )
-# layout <- "
-# AABC#
-# AADEF
-# GGHI#
-# GGJK#
-# LLMN#
-# LLOP#"
-# 
-# combined2 <- umap.HB13 + HB13.casz1 + HB13.zic2b + 
-#   HB13.ntn1a + HB13.sp8a + HB13.lbx1b +
-#   umap.HB16 + HB16.zic2b + HB16.ntn1a +
-#   HB16.lbx1b + HB16.dbx1b + 
-#   umap.HBint + HBint.zic2b + HBint.lbx1b +
-#   HBint.dbx1b + HBint.ntn1a +
-#   plot_layout(design = layout)
-# combined2
-# ggsave(filename = "Plots/Figure2_vs2.png", width = 15, height = 20, plot = combined2)
-```
 
 ```{r sessionInfo}
 sessionInfo()

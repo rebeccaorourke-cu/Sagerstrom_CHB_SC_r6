@@ -12,6 +12,7 @@ suppressPackageStartupMessages({
   library(Signac)
   library(EnhancedVolcano)
   library(ggsci)
+  library(openxlsx)
 })
 ```
 
@@ -150,6 +151,13 @@ ggsave(filename = "Plots/HB16hpf_SCvsCHBvsR6_volcanoPlots.png", width = 25, heig
 saveRDS(p, file = "Plots/HB16_volcanoPlots.RDS")
 ```
 
+```{r DEgene_xlsx}
+DEgenelist <- list()
+DEgenelist[["HB16_SCvsr6"]] <- markers.SCvsr6
+DEgenelist[["HB16_r6vsCHB"]] <- markers.r6vsCHB
+DEgenelist[["HB16_SCvsCHB"]] <- markers.SCvsCHB
+write.xlsx(DEgenelist, file = "Tables/Fig4_DEgenes_HB16hpf_SCvsCHBvsr6.xlsx", rowNames = T)
+```
 
 ```{r sessioninfo}
 sessionInfo()

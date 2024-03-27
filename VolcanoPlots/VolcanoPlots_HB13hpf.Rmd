@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
   library(Signac)
   library(EnhancedVolcano)
   library(ggsci)
+  library(openxlsx)
 })
 ```
 
@@ -133,6 +134,14 @@ p <- p1 + p2 + p3 + patchwork::plot_layout(guides = "collect")
 p
 ggsave(filename = "Plots/HB13_SCvsCHBvsR6_volcanoPlots.png", width = 25, height = 7, plot = p)
 saveRDS(p, file = "Plots/HB13_volcanoPlots.RDS")
+```
+
+```{r DEgene_xlsx}
+DEgenelist <- list()
+DEgenelist[["HB13_SCvsr6"]] <- markers.SCvsr6
+DEgenelist[["HB13_r6vsCHB"]] <- markers.r6vsCHB
+DEgenelist[["HB13_SCvsCHB"]] <- markers.SCvsCHB
+write.xlsx(DEgenelist, file = "Tables/Fig4_DEgenes_HB13hpf_SCvsCHBvsr6.xlsx", rowNames = T)
 ```
 
 ```{r sessionInfo}

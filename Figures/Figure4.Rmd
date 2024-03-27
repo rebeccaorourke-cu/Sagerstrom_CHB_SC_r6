@@ -17,6 +17,7 @@ suppressPackageStartupMessages({
   library(patchwork)
   library(dittoSeq)
   library(ComplexHeatmap)
+  library(openxlsx)
 })
 options(future.globals.maxSize = 4000 * 1024^2)
 ```
@@ -336,6 +337,17 @@ AGGGE"
 combined_plot <- plot_spacer() + p1 + p2 + p3 + p4 + HB13.vp + HB16.vp + plot_layout(design = layout, heights = c(4.48,1.48,1.48), widths = c(0.01,1,1.1,0.7,1.6))
 combined_plot
 ggsave(filename = "Plots/Figure4.png", width = 28, height = 30, plot = combined_plot)
+```
+                     
+```{r DEgene_xlsx}
+DEgenelist <- list()
+DEgenelist[["HB13_SCvsCHBandr6"]] <- SC.13.markers[SC.13.markers$p_val_adj <0.05,]
+DEgenelist[["HB13_CHBvsSCandr6"]] <- CHB.13.markers[CHB.13.markers$p_val_adj <0.05,]
+DEgenelist[["HB13_r6vsSCandCHB"]] <- r6.13.markers[r6.13.markers$p_val_adj <0.05,]
+DEgenelist[["HB16_SCvsCHBandr6"]] <- SC.16.markers[SC.16.markers$p_val_adj <0.05,]
+DEgenelist[["HB16_CHBvsSCandr6"]] <- CHB.16.markers[CHB.16.markers$p_val_adj <0.05,]
+DEgenelist[["HB16_r6vsSCandCHB"]] <- r6.16.markers[r6.16.markers$p_val_adj <0.05,]
+write.xlsx(DEgenelist, file = "Markers/Fig4_SuppFig1_DEgenesTables_forHeatmaps.xlsx", rowNames = T)
 ```
 
 ```{r}

@@ -13,7 +13,15 @@ suppressPackageStartupMessages({
   library(patchwork)
   library(dittoSeq)
   library(ComplexHeatmap)
+  library(openxlsx)
 })
+```
+
+    ## Warning: package 'dittoSeq' was built under R version 4.3.3
+
+    ## Warning: package 'ComplexHeatmap' was built under R version 4.3.1
+
+``` r
 options(future.globals.maxSize = 4000 * 1024^2)
 ```
 
@@ -406,99 +414,112 @@ saveRDS(hm_list[["all"]], file = "Plots/E10_heatmap.RDS")
 ```
 
 ``` r
+DEgenelist <- list()
+DEgenelist[["E10_SCvsCHBandHB.2"]] <- SC.markers[SC.markers$p_val_adj <0.05,]
+DEgenelist[["E10_CHBvsSCandHB.2"]] <- CHB.markers[CHB.markers$p_val_adj <0.05,]
+DEgenelist[["E10_HB.2vsSCandCHB"]] <- HB2.markers[HB2.markers$p_val_adj <0.05,]
+write.xlsx(DEgenelist, file = "Markers/Fig6_SuppFig2_DEgenesTables_forHeatmaps.xlsx", rowNames = T)
+```
+
+``` r
 sessionInfo()
 ```
 
-    ## R version 4.2.3 (2023-03-15)
-    ## Platform: aarch64-apple-darwin20 (64-bit)
+    ## R version 4.3.0 (2023-04-21)
+    ## Platform: x86_64-apple-darwin20 (64-bit)
     ## Running under: macOS Monterey 12.6.2
     ## 
     ## Matrix products: default
-    ## BLAS:   /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRblas.0.dylib
-    ## LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib
+    ## BLAS:   /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib/libRblas.0.dylib 
+    ## LAPACK: /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
     ## 
     ## locale:
     ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+    ## 
+    ## time zone: America/Denver
+    ## tzcode source: internal
     ## 
     ## attached base packages:
     ## [1] grid      stats     graphics  grDevices utils     datasets  methods  
     ## [8] base     
     ## 
     ## other attached packages:
-    ## [1] ComplexHeatmap_2.14.0 dittoSeq_1.10.0       patchwork_1.1.2      
-    ## [4] ggsci_3.0.0           ggplot2_3.4.2         dplyr_1.1.2          
-    ## [7] Signac_1.10.0         SeuratObject_4.1.3    Seurat_4.3.0.1       
+    ##  [1] openxlsx_4.2.5.2      ComplexHeatmap_2.18.0 dittoSeq_1.14.3      
+    ##  [4] patchwork_1.2.0       ggsci_3.0.0           ggplot2_3.4.4        
+    ##  [7] dplyr_1.1.4           Signac_1.10.0         SeuratObject_4.1.3   
+    ## [10] Seurat_4.3.0.1       
     ## 
     ## loaded via a namespace (and not attached):
-    ##   [1] circlize_0.4.15             fastmatch_1.1-3            
-    ##   [3] systemfonts_1.0.4           plyr_1.8.8                 
-    ##   [5] igraph_1.4.2                lazyeval_0.2.2             
-    ##   [7] sp_1.6-0                    splines_4.2.3              
-    ##   [9] BiocParallel_1.32.6         listenv_0.9.0              
-    ##  [11] scattermore_1.0             GenomeInfoDb_1.34.9        
-    ##  [13] digest_0.6.31               foreach_1.5.2              
-    ##  [15] htmltools_0.5.5             fansi_1.0.4                
-    ##  [17] magrittr_2.0.3              doParallel_1.0.17          
-    ##  [19] tensor_1.5                  cluster_2.1.4              
-    ##  [21] ROCR_1.0-11                 limma_3.54.2               
-    ##  [23] globals_0.16.2              Biostrings_2.66.0          
-    ##  [25] matrixStats_0.63.0          spatstat.sparse_3.0-1      
-    ##  [27] colorspace_2.1-0            ggrepel_0.9.3              
-    ##  [29] textshaping_0.3.6           xfun_0.39                  
-    ##  [31] crayon_1.5.2                RCurl_1.98-1.12            
-    ##  [33] jsonlite_1.8.4              progressr_0.13.0           
-    ##  [35] spatstat.data_3.0-1         iterators_1.0.14           
-    ##  [37] survival_3.5-5              zoo_1.8-12                 
-    ##  [39] glue_1.6.2                  polyclip_1.10-4            
-    ##  [41] gtable_0.3.3                zlibbioc_1.44.0            
-    ##  [43] XVector_0.38.0              leiden_0.4.3               
-    ##  [45] GetoptLong_1.0.5            DelayedArray_0.24.0        
-    ##  [47] shape_1.4.6                 future.apply_1.10.0        
-    ##  [49] SingleCellExperiment_1.20.1 BiocGenerics_0.44.0        
-    ##  [51] abind_1.4-5                 scales_1.2.1               
-    ##  [53] pheatmap_1.0.12             spatstat.random_3.1-4      
-    ##  [55] miniUI_0.1.1.1              Rcpp_1.0.10                
-    ##  [57] viridisLite_0.4.2           xtable_1.8-4               
-    ##  [59] clue_0.3-64                 reticulate_1.28            
-    ##  [61] stats4_4.2.3                htmlwidgets_1.6.2          
-    ##  [63] httr_1.4.6                  RColorBrewer_1.1-3         
-    ##  [65] ellipsis_0.3.2              ica_1.0-3                  
-    ##  [67] farver_2.1.1                pkgconfig_2.0.3            
-    ##  [69] uwot_0.1.14                 deldir_1.0-6               
-    ##  [71] utf8_1.2.3                  labeling_0.4.2             
-    ##  [73] tidyselect_1.2.0            rlang_1.1.1                
-    ##  [75] reshape2_1.4.4              later_1.3.1                
-    ##  [77] munsell_0.5.0               tools_4.2.3                
-    ##  [79] cli_3.6.1                   generics_0.1.3             
-    ##  [81] ggridges_0.5.4              evaluate_0.21              
-    ##  [83] stringr_1.5.0               fastmap_1.1.1              
-    ##  [85] ragg_1.2.5                  yaml_2.3.7                 
-    ##  [87] goftest_1.2-3               knitr_1.42                 
-    ##  [89] fitdistrplus_1.1-11         purrr_1.0.1                
-    ##  [91] RANN_2.6.1                  pbapply_1.7-0              
-    ##  [93] future_1.32.0               nlme_3.1-162               
-    ##  [95] mime_0.12                   RcppRoll_0.3.0             
-    ##  [97] compiler_4.2.3              rstudioapi_0.14            
-    ##  [99] plotly_4.10.1               png_0.1-8                  
-    ## [101] spatstat.utils_3.0-2        tibble_3.2.1               
-    ## [103] stringi_1.7.12              highr_0.10                 
-    ## [105] lattice_0.21-8              Matrix_1.6-1.1             
-    ## [107] vctrs_0.6.2                 pillar_1.9.0               
-    ## [109] lifecycle_1.0.3             GlobalOptions_0.1.2        
-    ## [111] spatstat.geom_3.1-0         lmtest_0.9-40              
-    ## [113] RcppAnnoy_0.0.20            data.table_1.14.8          
-    ## [115] cowplot_1.1.1               bitops_1.0-7               
-    ## [117] irlba_2.3.5.1               httpuv_1.6.9               
-    ## [119] GenomicRanges_1.50.2        R6_2.5.1                   
-    ## [121] promises_1.2.0.1            KernSmooth_2.23-21         
-    ## [123] gridExtra_2.3               IRanges_2.32.0             
-    ## [125] parallelly_1.35.0           codetools_0.2-19           
-    ## [127] MASS_7.3-60                 SummarizedExperiment_1.28.0
-    ## [129] rjson_0.2.21                withr_2.5.0                
-    ## [131] sctransform_0.3.5           Rsamtools_2.14.0           
-    ## [133] S4Vectors_0.36.2            GenomeInfoDbData_1.2.9     
-    ## [135] parallel_4.2.3              tidyr_1.3.0                
-    ## [137] rmarkdown_2.21              MatrixGenerics_1.10.0      
-    ## [139] Cairo_1.6-0                 Rtsne_0.16                 
-    ## [141] spatstat.explore_3.1-0      Biobase_2.58.0             
-    ## [143] shiny_1.7.4
+    ##   [1] RcppAnnoy_0.0.22            splines_4.3.0              
+    ##   [3] later_1.3.2                 bitops_1.0-7               
+    ##   [5] tibble_3.2.1                polyclip_1.10-6            
+    ##   [7] lifecycle_1.0.4             doParallel_1.0.17          
+    ##   [9] globals_0.16.2              lattice_0.22-5             
+    ##  [11] MASS_7.3-60.0.1             magrittr_2.0.3             
+    ##  [13] limma_3.58.1                plotly_4.10.4              
+    ##  [15] rmarkdown_2.25              yaml_2.3.8                 
+    ##  [17] httpuv_1.6.13               sctransform_0.4.1          
+    ##  [19] zip_2.3.1                   sp_2.1-2                   
+    ##  [21] spatstat.sparse_3.0-3       reticulate_1.34.0          
+    ##  [23] cowplot_1.1.3               pbapply_1.7-2              
+    ##  [25] RColorBrewer_1.1-3          abind_1.4-5                
+    ##  [27] zlibbioc_1.48.0             Rtsne_0.17                 
+    ##  [29] GenomicRanges_1.54.1        purrr_1.0.2                
+    ##  [31] BiocGenerics_0.48.1         RCurl_1.98-1.14            
+    ##  [33] circlize_0.4.16             GenomeInfoDbData_1.2.11    
+    ##  [35] IRanges_2.36.0              S4Vectors_0.40.2           
+    ##  [37] ggrepel_0.9.5               irlba_2.3.5.1              
+    ##  [39] listenv_0.9.0               spatstat.utils_3.0-4       
+    ##  [41] pheatmap_1.0.12             goftest_1.2-3              
+    ##  [43] spatstat.random_3.2-2       fitdistrplus_1.1-11        
+    ##  [45] parallelly_1.36.0           leiden_0.4.3.1             
+    ##  [47] codetools_0.2-19            DelayedArray_0.28.0        
+    ##  [49] RcppRoll_0.3.0              tidyselect_1.2.0           
+    ##  [51] shape_1.4.6.1               farver_2.1.1               
+    ##  [53] matrixStats_1.2.0           stats4_4.3.0               
+    ##  [55] spatstat.explore_3.2-5      jsonlite_1.8.8             
+    ##  [57] GetoptLong_1.0.5            ellipsis_0.3.2             
+    ##  [59] progressr_0.14.0            ggridges_0.5.6             
+    ##  [61] survival_3.5-7              iterators_1.0.14           
+    ##  [63] systemfonts_1.0.6           foreach_1.5.2              
+    ##  [65] tools_4.3.0                 ragg_1.3.0                 
+    ##  [67] ica_1.0-3                   Rcpp_1.0.12                
+    ##  [69] glue_1.7.0                  gridExtra_2.3              
+    ##  [71] SparseArray_1.2.3           xfun_0.41                  
+    ##  [73] MatrixGenerics_1.14.0       GenomeInfoDb_1.38.5        
+    ##  [75] withr_3.0.0                 fastmap_1.1.1              
+    ##  [77] fansi_1.0.6                 digest_0.6.34              
+    ##  [79] R6_2.5.1                    mime_0.12                  
+    ##  [81] textshaping_0.3.7           colorspace_2.1-0           
+    ##  [83] scattermore_1.2             tensor_1.5                 
+    ##  [85] spatstat.data_3.0-4         utf8_1.2.4                 
+    ##  [87] tidyr_1.3.1                 generics_0.1.3             
+    ##  [89] data.table_1.14.10          httr_1.4.7                 
+    ##  [91] htmlwidgets_1.6.4           S4Arrays_1.2.0             
+    ##  [93] uwot_0.1.16                 pkgconfig_2.0.3            
+    ##  [95] gtable_0.3.4                lmtest_0.9-40              
+    ##  [97] SingleCellExperiment_1.24.0 XVector_0.42.0             
+    ##  [99] htmltools_0.5.7             clue_0.3-65                
+    ## [101] scales_1.3.0                Biobase_2.62.0             
+    ## [103] png_0.1-8                   knitr_1.45                 
+    ## [105] rstudioapi_0.15.0           reshape2_1.4.4             
+    ## [107] rjson_0.2.21                nlme_3.1-164               
+    ## [109] zoo_1.8-12                  GlobalOptions_0.1.2        
+    ## [111] stringr_1.5.1               KernSmooth_2.23-22         
+    ## [113] parallel_4.3.0              miniUI_0.1.1.1             
+    ## [115] pillar_1.9.0                vctrs_0.6.5                
+    ## [117] RANN_2.6.1                  promises_1.2.1             
+    ## [119] xtable_1.8-4                cluster_2.1.6              
+    ## [121] evaluate_0.23               cli_3.6.2                  
+    ## [123] compiler_4.3.0              Rsamtools_2.18.0           
+    ## [125] rlang_1.1.3                 crayon_1.5.2               
+    ## [127] future.apply_1.11.1         labeling_0.4.3             
+    ## [129] plyr_1.8.9                  stringi_1.8.3              
+    ## [131] viridisLite_0.4.2           deldir_2.0-2               
+    ## [133] BiocParallel_1.36.0         munsell_0.5.0              
+    ## [135] Biostrings_2.70.1           lazyeval_0.2.2             
+    ## [137] spatstat.geom_3.2-7         Matrix_1.6-5               
+    ## [139] future_1.33.1               statmod_1.5.0              
+    ## [141] shiny_1.8.0                 highr_0.10                 
+    ## [143] SummarizedExperiment_1.32.0 ROCR_1.0-11                
+    ## [145] igraph_1.6.0                fastmatch_1.1-4

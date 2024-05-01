@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
   library(EnhancedVolcano)
   library(ggsci)
   library(patchwork)
+  library(openxlsx)
 })
 ```
 
@@ -23,6 +24,44 @@ E10 <- readRDS("../data/HB10hpf_neural.RDS")
 Idents(E10) <- "Clusters"
 DefaultAssay(E10) <- "SCT"
 DimPlot(E10, reduction = "wnn.umap") + scale_color_igv()
+```
+only need to run once
+```{r E10_runchromvar2}
+# E10 <- RunChromVAR(
+#   object = E10,
+#   genome = BSgenome.Drerio.UCSC.danRer11,
+#   assay = "peaks"
+# )
+# saveRDS(E10, file = "../data/HB10hpf_neural.RDS")
+```
+
+# Set up differntial table list and DA function
+```{r difftable_setup}
+umapA.list <- list()
+umapB.list <- list()
+```
+
+```{r}
+GetDiffAct <- function(object,cluster, assay){
+  DefaultAssay(object) <- 'chromvar'
+  DA <- FindMarkers(
+    object = object,
+    ident.1 = cluster,
+    only.pos = TRUE,
+    test.use = 'LR',
+    latent.vars = 'nCount_peaks'
+  )
+  DA$motif <- rownames(DA)
+  DA$motif.name <- "NA"
+  for(motif in rownames(DA)){
+    #print(motif)
+    motif.name <- object@assays[[assay]]@motifs@motif.names[[motif]]
+    #print(motif.name)
+    DA[DA$motif == motif,]$motif.name <- motif.name
+  }
+  
+  return(DA)
+}
 ```
 
 ```{r heatmap}
@@ -60,6 +99,27 @@ umap.A <- DimPlot(E10, reduction = "wnn.umap") + scale_color_igv() +
   theme(legend.position = "bottom")
 umap.A
 ```
+
+```{r umapA_DEmarkers}
+DefaultAssay(E10) <- "SCT"
+for(cluster in c("CHB","SC","HB.2")){
+  umapA.list[[paste0("E10hpf_DEgenes_",cluster)]] <- FindMarkers(E10, ident.1 = cluster, only.pos = T, verbose = F)
+}
+```
+
+```{r umapA_DAmotifs}
+DefaultAssay(E10) <- "chromvar"
+for(cluster in c("CHB","SC","HB.2")){
+  try({
+    umapA.list[[paste0("E10hpf_DAmotif_",cluster)]] <- GetDiffAct(E10, cluster, "peaks")
+  })
+}
+```
+
+```{r umapA_excel}
+write.xlsx(umapA.list, file = "Markers/Fig6A_DEgene_DAmotif_byCluster.xlsx", rowNames = T)
+```
+
 Rename CHB and SC clusters to match HB13hpf and correct CHB.1 to SC.  See Match_CHB_SC_Cluster_Names.
 ```{r rename_E10_B}
 Idents(E10) <- "Clusters"
@@ -86,9 +146,30 @@ umap.B <- DimPlot(E10, reduction = "wnn.umap") + scale_color_igv() +
 umap.B
 ```
 
+```{r umapB_DEmarkers}
+DefaultAssay(E10) <- "SCT"
+for(cluster in c("CHB.1","CHB.2","SC.1a","SC.1b","SC.3a","SC.3b","HB.2")){
+  umapB.list[[paste0("E10hpf_DEgenes_",cluster)]] <- FindMarkers(E10, ident.1 = cluster, only.pos = T, verbose = F)
+}
+```
+
+```{r umapB_DAmotifs}
+DefaultAssay(E10) <- "chromvar"
+for(cluster in c("CHB.1","CHB.2","SC.1a","SC.1b","SC.3a","SC.3b","HB.2")){
+  try({
+    umapB.list[[paste0("E10hpf_DAmotif_",cluster)]] <- GetDiffAct(E10, cluster, "peaks")
+  })
+}
+```
+
+```{r umapB_excel}
+write.xlsx(umapB.list, file = "Markers/Fig6M_DEgene_DAmotif_byCluster.xlsx", rowNames = T)
+```
+
 # Gene expression and chromvar activity plots
 
 ```{r E10_feature}
+DefaultAssay(E10) <- "SCT"
 E10.cdx4 <- FeaturePlot(E10, features = "cdx4", reduction = "wnn.umap", 
                         max.cutoff = 1.3
                         ) 
@@ -164,15 +245,7 @@ GetChromVarPlotsPlusLegend <- function(object, motifs, reduction, max.cutoff){
 }
 ```
 
-only need to run once
-```{r E10_runchromvar2}
-# E10 <- RunChromVAR(
-#   object = E10,
-#   genome = BSgenome.Drerio.UCSC.danRer11,
-#   assay = "peaks"
-# )
-# saveRDS(E10, file = "../data/HB10hpf_neural.RDS")
-```
+
 
 ```{r motiflist}
 motif1.names <- c("CDX4","HOXB9","TFAP2A","HNF1B","Mafb")

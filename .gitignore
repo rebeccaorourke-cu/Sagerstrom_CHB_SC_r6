@@ -36,3 +36,5 @@ rsconnect/
 data
 monocle_trajectories
 renv
+CellRank_trajectories
+CellRank_wnnUMAP_subset_vs2.nb.html
